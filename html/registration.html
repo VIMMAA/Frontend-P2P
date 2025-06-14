@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="../style.css">
+    <title>Регистрация</title>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-light bg-light">
+            <div class="container-fluid px-5">
+
+                <a class="navbar-brand" href="#">P2P</a>
+            
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav flex-row me-auto mb-0"> 
+                    <li class="nav-item auth-only d-none">
+                        <a class="nav-link" href="#">Курсы</a>
+                    </li>
+                    <li class="nav-item auth-only d-none">
+                        <a class="nav-link" href="#">Задания</a>
+                    </li>
+                    <li class="nav-item auth-only d-none">
+                        <a class="nav-link" href="#">Проверки</a>
+                    </li>
+                    </ul>
+
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item guest-only">
+                            <a class="nav-link" href="authorization.html" role="button" aria-expanded="false">Вход</a>
+                        </li>
+                        <li class="nav-item dropdown auth-only d-none">
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false" id="userEmail"></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="authorization.html" id="logoutButton">Выход</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-8 col-lg-5">
+                    <div class="card p-4 shadow-sm">
+                        <h3 class="mb-4">Регистрация</h3>
+                        <form id="registrationForm">
+
+                            <div class="mb-3">
+                                <label for="inputFirstName" class="form-label">Имя</label>
+                                <input class="form-control" id="inputFirstName" aria-describedby="firstNameHelp" placeholder="Иван">
+                                <div id="firstNameFeedback" class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="inputMiddleName" class="form-label">Фамилия</label>
+                                <input class="form-control" id="inputMiddleName" aria-describedby="middleNameHelp" placeholder="Иванов">
+                                <div id="middleNameFeedback" class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="inputLastName" class="form-label">Отчество</label>
+                                <input class="form-control" id="inputLastName" aria-describedby="lastNameHelp" placeholder="Иванович">
+                                <div id="lastNameFeedback" class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="inputDate" class="form-label">Дата рождения</label>
+                                <input type="date" class="form-control" id="inputDate">
+                                <div id="dateFeedback" class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="inputEmail" class="form-label">Email</label>
+                                <input class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="name@gmail.com">
+                                <div id="emailFeedback" class="invalid-feedback"></div>
+                            </div>
+                        
+                            <div class="mb-3">
+                                <label for="inputPassword" class="form-label">Пароль</label>
+                                <input type="password" class="form-control" id="inputPassword" autocomplete="current-password">
+                                <div id="passwordFeedback" class="invalid-feedback">Неправильный логин или пароль!</div>
+                            </div>
+                        
+                            <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-container">
+            <p class="footer-text">© 2025 - P2P</p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
+    <script src="../js/registration.js" defer></script>
+</body>
+</html>
