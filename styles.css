@@ -60,3 +60,11 @@ html, body {
 .applicationNum {
   cursor: pointer;
 }
+
+.card-post {
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+.card-post:hover {
+  background-color: #f8f9fa;
+}
