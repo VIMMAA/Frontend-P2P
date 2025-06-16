@@ -61,10 +61,12 @@ html, body {
   cursor: pointer;
 }
 
-.card-post {
-  transition: background-color 0.2s ease;
-  cursor: pointer;
+textarea::-webkit-resizer {
+  display: none;
 }
-.card-post:hover {
-  background-color: #f8f9fa;
+
+textarea {
+  overflow-y: auto;
+  resize: none;
 }
+
