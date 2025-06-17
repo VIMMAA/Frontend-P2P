@@ -1,115 +1,402 @@
-let posts = [];
+document.addEventListener("DOMContentLoaded", function () {
+    const createPostOptions = document.querySelectorAll(".create-post-option");
+    const postModal = new bootstrap.Modal(document.getElementById("postModal"));
+    const postForm = document.getElementById("postForm");
+    const publishPostBtn = document.getElementById("publishPostBtn");
+    const postTitle = document.getElementById("postTitle");
+    const postDescription = document.getElementById("postDescription");
+    const postFiles = document.getElementById("postFiles");
+    const postsContainer = document.getElementById("postsContainer");
+    const postTypeInput = document.getElementById("postType");
 
-let postList = document.getElementById('postList');
-const content = document.getElementById('content');
-const createPostBtn = document.getElementById('createPostBtn');
+    function validateForm() {
+        const titleValid = postTitle.value.length >= 4;
+        const descriptionValid = postDescription.value.length <= 1000;
+        const filesValid = postFiles.files.length <= 5;
+        publishPostBtn.disabled = !(titleValid && descriptionValid && filesValid);
+    }
 
-function renderPostList() {
-    postList.innerHTML = '';
-    posts.forEach((post, index) => {
-        const card = document.createElement('div');
-        card.className = 'card mb-3';
-        card.style.cursor = 'pointer';
-        card.innerHTML = `
+    postTitle.addEventListener("input", validateForm);
+    postDescription.addEventListener("input", validateForm);
+    postFiles.addEventListener("change", validateForm);
+
+    createPostOptions.forEach(option => {
+        option.addEventListener("click", function () {
+            postTypeInput.value = option.dataset.type;
+            postForm.reset();
+            validateForm();
+            postModal.show();
+        });
+    });
+
+    publishPostBtn.addEventListener("click", function () {
+        const now = new Date();
+        const dateString = now.toLocaleDateString("ru-RU");
+        const newPost = document.createElement("div");
+        newPost.className = "card mb-3";
+        newPost.innerHTML = `
       <div class="card-body">
-        <h5 class="card-title">${post.title}</h5>
-        <p class="card-text">${post.description}</p>
-        <p class="card-subtitle text-muted">${post.author} · ${post.date}</p>
+        <div class="d-flex justify-content-between">
+          <h5 class="card-title">${postTitle.value}</h5>
+          <i class="bi bi-pencil-square edit-post" style="cursor:pointer"></i>
+        </div>
+        <p class="card-text">${postDescription.value}</p>
+        <p class="text-muted">Автор: Вы | Дата: ${dateString}</p>
+        <hr>
+        <div class="input-group">
+          <input type="text" class="form-control comment-input" placeholder="Введите комментарий...">
+          <button class="btn btn-outline-secondary send-comment" type="button">
+            <i class="bi bi-send"></i>
+          </button>
+        </div>
+        <div class="comment-section mt-2"></div>
       </div>
     `;
-        card.addEventListener('click', () => viewPost(index));
-        postList.appendChild(card);
+        postsContainer.prepend(newPost);
+        postModal.hide();
     });
-}
 
-function viewPost(index) {
-    const post = posts[index];
-    content.innerHTML = `
-    <div class="card">
-      <div class="card-body">
-        <input type="text" id="editTitle" class="form-control fs-5 fw-bold mb-2" value="${post.title}" disabled>
-        <textarea id="editDescription" class="form-control mb-2" rows="6" maxlength="1000" disabled>${post.description}</textarea>
-        <div class="mb-2">Автор: ${post.author}</div>
-        <div class="mb-2">Дата: ${post.date}</div>
-        <button class="btn btn-outline-primary" id="editBtn">Изменить</button>
-      </div>
-    </div>
-  `;
-
-    document.getElementById('editBtn').addEventListener('click', () => {
-        const titleInput = document.getElementById('editTitle');
-        const descInput = document.getElementById('editDescription');
-        const btn = document.getElementById('editBtn');
-        if (btn.textContent === 'Изменить') {
-            titleInput.disabled = false;
-            descInput.disabled = false;
-            btn.textContent = 'Сохранить';
-        } else {
-            if ((titleInput.value.match(/[a-zA-Zа-яА-Я]/g) || []).length >= 4 && descInput.value.length <= 1000) {
-                posts[index].title = titleInput.value;
-                posts[index].description = descInput.value;
-                renderMainContent();
+    postsContainer.addEventListener("click", function (e) {
+        if (e.target.closest(".send-comment")) {
+            const card = e.target.closest(".card");
+            const input = card.querySelector(".comment-input");
+            const commentText = input.value.trim();
+            if (commentText !== "") {
+                const now = new Date();
+                const time = now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+                const date = now.toLocaleDateString("ru-RU");
+                const commentSection = card.querySelector(".comment-section");
+                const comment = document.createElement("div");
+                comment.className = "border-top pt-2";
+                comment.innerHTML = `<strong>Вы</strong> (${date} ${time}):<br>${commentText}`;
+                commentSection.appendChild(comment);
+                input.value = "";
             }
         }
     });
-}
+});
 
-function renderCreateForm() {
-    content.innerHTML = `
-    <div class="card">
-      <div class="card-body">
-        <input type="text" id="newTitle" class="form-control mb-2" placeholder="Тема">
-        <textarea id="newDescription" class="form-control mb-2" rows="6" maxlength="1000" placeholder="Описание" style="resize: none;"></textarea>
-        <input type="file" id="newFiles" class="form-control mb-2" multiple>
-        <input type="text" id="newLink" class="form-control mb-3" placeholder="Ссылка на материалы">
-        <button class="btn btn-primary" id="publishBtn" disabled>Опубликовать</button>
-      </div>
-    </div>
-  `;
+document.addEventListener("DOMContentLoaded", function () {
+    const createPostOptions = document.querySelectorAll(".create-post-option");
+    const postModal = new bootstrap.Modal(document.getElementById("postModal"));
+    const postForm = document.getElementById("postForm");
+    const publishPostBtn = document.getElementById("publishPostBtn");
+    const postTitle = document.getElementById("postTitle");
+    const postDescription = document.getElementById("postDescription");
+    const postFiles = document.getElementById("postFiles");
+    const postsContainer = document.getElementById("postsContainer");
+    const postTypeInput = document.getElementById("postType");
 
-    const titleInput = document.getElementById('newTitle');
-    const descInput = document.getElementById('newDescription');
-    const fileInput = document.getElementById('newFiles');
-    const publishBtn = document.getElementById('publishBtn');
+    let editingPost = null;
 
-    function validate() {
-        const letterCount = (titleInput.value.match(/[a-zA-Zа-яА-Я]/g) || []).length;
-        publishBtn.disabled = !(letterCount >= 4 && descInput.value.length <= 1000 && fileInput.files.length <= 5);
+    function validateForm() {
+        const titleValid = postTitle.value.length >= 4;
+        const descriptionValid = postDescription.value.length <= 1000;
+        const filesValid = postFiles.files.length <= 5;
+        publishPostBtn.disabled = !(titleValid && descriptionValid && filesValid);
     }
 
-    titleInput.addEventListener('input', validate);
-    descInput.addEventListener('input', validate);
-    fileInput.addEventListener('change', () => {
-        if (fileInput.files.length > 5) {
-            alert('Можно загрузить до 5 файлов.');
-            fileInput.value = '';
+    postTitle.addEventListener("input", validateForm);
+    postDescription.addEventListener("input", validateForm);
+    postFiles.addEventListener("change", validateForm);
+
+    createPostOptions.forEach(option => {
+        option.addEventListener("click", function () {
+            editingPost = null;
+            postTypeInput.value = option.dataset.type;
+            postForm.reset();
+            validateForm();
+            postModal.show();
+        });
+    });
+
+    function createPostCard(title, description, type, dateString, files) {
+        const card = document.createElement("div");
+        card.className = "card mb-3";
+        card.dataset.type = type;
+        card.innerHTML = `
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <h5 class="card-title">${title}</h5>
+          <i class="bi bi-pencil-square edit-post" style="cursor:pointer"></i>
+        </div>
+        <p class="card-text">${description}</p>
+        <p class="text-muted">Автор: Вы | Дата: ${dateString}</p>
+        <hr>
+        <div class="input-group">
+          <input type="text" class="form-control comment-input" placeholder="Введите комментарий...">
+          <button class="btn btn-outline-secondary send-comment" type="button">
+            <i class="bi bi-send"></i>
+          </button>
+        </div>
+        <div class="comment-section mt-2"></div>
+      </div>
+    `;
+        return card;
+    }
+
+    publishPostBtn.addEventListener("click", function () {
+        const now = new Date();
+        const dateString = now.toLocaleDateString("ru-RU");
+        const type = postTypeInput.value;
+        if (editingPost) {
+            editingPost.querySelector(".card-title").textContent = postTitle.value;
+            editingPost.querySelector(".card-text").textContent = postDescription.value;
+            editingPost = null;
+        } else {
+            const newCard = createPostCard(postTitle.value, postDescription.value, type, dateString);
+            postsContainer.prepend(newCard);
         }
-        validate();
+        postModal.hide();
     });
 
-    publishBtn.addEventListener('click', () => {
-        const newPost = {
-            title: titleInput.value,
-            description: descInput.value,
-            files: Array.from(fileInput.files),
-            link: document.getElementById('newLink').value,
-            author: 'Вы',
-            date: new Date().toLocaleString()
-        };
-        posts.unshift(newPost);
-        renderMainContent();
+    postsContainer.addEventListener("click", function (e) {
+        const editIcon = e.target.closest(".edit-post");
+        const sendBtn = e.target.closest(".send-comment");
+        const card = e.target.closest(".card");
+
+        if (sendBtn) {
+            const input = card.querySelector(".comment-input");
+            const commentText = input.value.trim();
+            if (commentText !== "") {
+                const now = new Date();
+                const time = now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+                const date = now.toLocaleDateString("ru-RU");
+                const commentSection = card.querySelector(".comment-section");
+                const comment = document.createElement("div");
+                comment.className = "border-top pt-2";
+                comment.innerHTML = `<strong>Вы</strong> (${date} ${time}):<br>${commentText}`;
+                commentSection.appendChild(comment);
+                input.value = "";
+            }
+        }
+
+        if (editIcon) {
+            editingPost = card;
+            const title = card.querySelector(".card-title").textContent;
+            const description = card.querySelector(".card-text").textContent;
+            postTitle.value = title;
+            postDescription.value = description;
+            postTypeInput.value = card.dataset.type;
+            validateForm();
+            postModal.show();
+        }
     });
-}
 
-function renderMainContent() {
-    content.innerHTML = `
-    <button id="createPostBtn" class="btn btn-primary mb-3">Создать пост</button>
-    <div id="postList"></div>
-  `;
-    postList = document.getElementById('postList');
-    document.getElementById('createPostBtn').addEventListener('click', renderCreateForm);
-    renderPostList();
-}
+    // Переключение вкладок
+    const navLinks = document.querySelectorAll("#feedTabs .nav-link");
+    navLinks.forEach(link => {
+        link.addEventListener("click", function (e) {
+            e.preventDefault();
+            navLinks.forEach(l => l.classList.remove("active"));
+            this.classList.add("active");
+            const name = this.textContent.trim();
+            if (name === "Задачи") {
+                location.href = "feed.html";
+            } else if (name === "Пользователи") {
+                location.href = "users.html";
+            } else if (name === "Оценки") {
+                location.href = "grades.html";
+            }
+        });
+    });
+});
 
-createPostBtn.addEventListener('click', renderCreateForm);
-renderPostList();
+
+document.addEventListener("DOMContentLoaded", function () {
+    const createPostOptions = document.querySelectorAll(".create-post-option");
+    const postModal = new bootstrap.Modal(document.getElementById("postModal"));
+    const postForm = document.getElementById("postForm");
+    const publishPostBtn = document.getElementById("publishPostBtn");
+    const postTitle = document.getElementById("postTitle");
+    const postDescription = document.getElementById("postDescription");
+    const postFiles = document.getElementById("postFiles");
+    const postsContainer = document.getElementById("postsContainer");
+    const postTypeInput = document.getElementById("postType");
+    const postViewModal = new bootstrap.Modal(document.getElementById("postViewModal"));
+    const postViewTitle = document.getElementById("viewTitle");
+    const postViewDescription = document.getElementById("viewDescription");
+    const postViewAuthor = document.getElementById("viewAuthor");
+    const postViewDate = document.getElementById("viewDate");
+    const postViewTabs = document.getElementById("postViewTabs");
+    const postViewTabContent = document.getElementById("postViewTabContent");
+
+    let editingPost = null;
+    let fileList = [];
+
+    function validateForm() {
+        const titleValid = postTitle.value.length >= 4;
+        const descriptionValid = postDescription.value.length <= 1000;
+        const filesValid = fileList.length <= 5;
+        publishPostBtn.disabled = !(titleValid && descriptionValid && filesValid);
+    }
+
+    postTitle.addEventListener("input", validateForm);
+    postDescription.addEventListener("input", validateForm);
+    postFiles.addEventListener("change", function () {
+        fileList = Array.from(postFiles.files).slice(0, 5);
+        validateForm();
+    });
+
+    createPostOptions.forEach(option => {
+        option.addEventListener("click", function () {
+            editingPost = null;
+            postTypeInput.value = option.dataset.type;
+            postForm.reset();
+            fileList = [];
+            validateForm();
+            postModal.show();
+        });
+    });
+
+    function formatFiles(files) {
+        if (!files || files.length === 0) return "";
+        return files.map(f => `<div><a href="#">${f.name}</a></div>`).join("");
+    }
+
+    function createPostCard(title, description, type, dateString, files = []) {
+        const card = document.createElement("div");
+        card.className = "card mb-3";
+        card.dataset.type = type;
+        card.dataset.title = title;
+        card.dataset.description = description;
+        card.dataset.date = dateString;
+        card.dataset.files = JSON.stringify(files);
+        card.innerHTML = `
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <h5 class="card-title">${title}</h5>
+          <i class="bi bi-pencil-square edit-post" style="cursor:pointer"></i>
+        </div>
+        <p class="card-text">${description}</p>
+        ${formatFiles(files)}
+        <p class="text-muted">Автор: Вы | Дата: ${dateString}</p>
+        <hr>
+        <div class="input-group">
+          <input type="text" class="form-control comment-input" placeholder="Введите комментарий...">
+          <button class="btn btn-outline-secondary send-comment" type="button">
+            <i class="bi bi-send"></i>
+          </button>
+        </div>
+        <div class="comment-section mt-2"></div>
+      </div>
+    `;
+
+        card.addEventListener("click", function (e) {
+            if (!e.target.classList.contains("edit-post") && !e.target.closest(".send-comment") && !e.target.closest(".comment-input")) {
+                const title = card.dataset.title;
+                const description = card.dataset.description;
+                const files = JSON.parse(card.dataset.files || "[]");
+                const dateString = card.dataset.date;
+                postViewTitle.textContent = title;
+                postViewDescription.textContent = description;
+                postViewAuthor.textContent = "Вы";
+                postViewDate.textContent = dateString;
+
+                if (type === "Задание") {
+                    postViewTabs.classList.remove("d-none");
+                    postViewTabContent.innerHTML = `
+            <div class="tab-pane fade show active" id="info-tab-pane">
+              <h5>${title}</h5>
+              <p>${description}</p>
+              ${formatFiles(files)}
+              <p class="text-muted">Автор: Вы | Дата: ${dateString}</p>
+              <hr>
+              <h6>Комментарии</h6>
+              <div>...</div>
+            </div>
+            <div class="tab-pane fade" id="grades-tab-pane">
+              <h6>Решения и оценки</h6>
+              <table class="table">
+                <thead><tr><th>Пользователь</th><th>Решение</th><th>Оценка</th></tr></thead>
+                <tbody>
+                  <tr><td>Иванов И.И.</td><td><a href="#">Файл.pdf</a></td><td>5</td></tr>
+                  <tr><td>Петров П.П.</td><td><a href="#">Ответ.docx</a></td><td>4</td></tr>
+                </tbody>
+              </table>
+            </div>
+          `;
+                } else {
+                    postViewTabs.classList.add("d-none");
+                    postViewTabContent.innerHTML = `<h5>${title}</h5><p>${description}</p>${formatFiles(files)}<p class="text-muted">Автор: Вы | Дата: ${dateString}</p><hr><h6>Комментарии</h6><div>...</div>`;
+                }
+
+                postViewModal.show();
+            }
+        });
+        return card;
+    }
+
+    publishPostBtn.addEventListener("click", function () {
+        const now = new Date();
+        const dateString = now.toLocaleDateString("ru-RU");
+        const type = postTypeInput.value;
+        const title = postTitle.value;
+        const description = postDescription.value;
+
+        const files = fileList.map(f => ({ name: f.name }));
+
+        if (editingPost) {
+            editingPost.querySelector(".card-title").textContent = title;
+            editingPost.querySelector(".card-text").textContent = description;
+            editingPost.dataset.title = title;
+            editingPost.dataset.description = description;
+            editingPost.dataset.files = JSON.stringify(files);
+            editingPost.dataset.type = type;
+            editingPost = null;
+        } else {
+            const newCard = createPostCard(title, description, type, dateString, files);
+            postsContainer.prepend(newCard);
+        }
+        postModal.hide();
+    });
+
+    postsContainer.addEventListener("click", function (e) {
+        const editIcon = e.target.closest(".edit-post");
+        const sendBtn = e.target.closest(".send-comment");
+        const card = e.target.closest(".card");
+
+        if (sendBtn) {
+            const input = card.querySelector(".comment-input");
+            const commentText = input.value.trim();
+            if (commentText !== "") {
+                const now = new Date();
+                const time = now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+                const date = now.toLocaleDateString("ru-RU");
+                const commentSection = card.querySelector(".comment-section");
+                const comment = document.createElement("div");
+                comment.className = "border-top pt-2";
+                comment.innerHTML = `<strong>Вы</strong> (${date} ${time}):<br>${commentText}`;
+                commentSection.appendChild(comment);
+                input.value = "";
+            }
+        }
+
+        if (editIcon) {
+            editingPost = card;
+            postTitle.value = card.dataset.title;
+            postDescription.value = card.dataset.description;
+            postTypeInput.value = card.dataset.type;
+            fileList = JSON.parse(card.dataset.files || "[]").map(f => ({ name: f.name }));
+            validateForm();
+            postModal.show();
+        }
+    });
+
+    const navLinks = document.querySelectorAll("#feedTabs .nav-link");
+    navLinks.forEach(link => {
+        link.addEventListener("click", function (e) {
+            e.preventDefault();
+            navLinks.forEach(l => l.classList.remove("active"));
+            this.classList.add("active");
+            const name = this.textContent.trim();
+            if (name === "Задачи") {
+                location.href = "feed.html";
+            } else if (name === "Пользователи") {
+                location.href = "users.html";
+            } else if (name === "Оценки") {
+                location.href = "grades.html";
+            }
+        });
+    });
+});

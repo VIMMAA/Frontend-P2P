@@ -61,12 +61,4 @@ html, body {
   cursor: pointer;
 }
 
-textarea::-webkit-resizer {
-  display: none;
-}
-
-textarea {
-  overflow-y: auto;
-  resize: none;
-}
 
