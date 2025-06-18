@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="../style.css">
+    <title>Профиль</title>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-light bg-light">
+            <div class="container-fluid px-5">
+
+                <a class="navbar-brand" href="#">P2P</a>
+            
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            
+                <div class="collapse navbar-collapse" id="navbarNav">
+
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item guest-only">
+                            <a class="nav-link" href="authorization.html" role="button" aria-expanded="false">Вход</a>
+                        </li>
+                        <li class="nav-item dropdown auth-only d-none">
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false" id="userEmail"></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="profile.html">Профиль</a></li>
+                                <li><a class="dropdown-item" href="#" id="logoutButton">Выход</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div class="container-fluid mt-5">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10 col-lg-8">
+                    <div class="card p-4 shadow-sm">
+                        <form id="profileForm">
+
+                            <div class="row mb-3">
+                                <label for="inputMiddleName" class="col-sm-4 col-form-label">Фамилия</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="inputMiddleName" aria-describedby="middleNameHelp">
+                                    <div id="middleNameFeedback" class="invalid-feedback"></div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="inputFirstName" class="col-sm-4 col-form-label">Имя</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="inputFirstName" aria-describedby="firstNameHelp">
+                                    <div id="firstNameFeedback" class="invalid-feedback"></div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="inputLastName" class="col-sm-4 col-form-label">Отчество</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="inputLastName" aria-describedby="lastNameHelp">
+                                    <div id="lastNameFeedback" class="invalid-feedback"></div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="inputBirthDate" class="col-sm-4 col-form-label">Дата рождения</label>
+                                <div class="col-sm-8">
+                                    <input type="date" class="form-control" id="inputBirthDate" disabled>
+                                    <div id="dateFeedback" class="invalid-feedback"></div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="inputEmail" class="col-sm-4 col-form-label">Email</label>
+                                <div class="col-sm-8">
+                                    <input type="email" class="form-control" id="inputEmail" disabled>
+                                    <div id="emailFeedback" class="invalid-feedback"></div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="button" class="btn btn-primary" id="saveProfileButton">Сохранить</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-container">
+            <p class="footer-text">© 2025 - P2P</p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
+    <script src="../js/profile.js" defer></script>
+</body>
+</html>

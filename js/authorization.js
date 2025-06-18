@@ -1,6 +1,5 @@
 const userEmail = localStorage.getItem('userEmail');
 const token = localStorage.getItem('jwtToken');
-const userRole = localStorage.getItem('userRole');
 
 const authElements = document.querySelectorAll('.auth-only');
 const guestElements = document.querySelectorAll('.guest-only');
@@ -45,7 +44,7 @@ document.querySelector('form').addEventListener('submit', function (event) {
             email: email,
         };
 
-        fetch('', {          //подключить к api
+        fetch('https://a34448-3f82.u.d-f.pw/api/User/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -64,15 +63,7 @@ document.querySelector('form').addEventListener('submit', function (event) {
 
                     localStorage.setItem('jwtToken', data.token);
                     localStorage.setItem('userEmail', email);
-                    localStorage.setItem('userRole', data.role)
-
-                    if (data.role === "Teacher") {
-                        window.location.href = 'users.html';
-                    }
-                    else {
-                        window.location.href = 'applicationsList.html';
-                    }
-                    
+                    window.location.href = 'courses.html';
                 }
             })
             .catch(error => {

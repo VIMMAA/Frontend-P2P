@@ -1,6 +1,5 @@
 localStorage.removeItem('jwtToken');
 localStorage.removeItem('userEmail');
-localStorage.removeItem('userRole');
 
 document.addEventListener('DOMContentLoaded', function () {
     const userEmail = localStorage.getItem('userEmail');
@@ -106,9 +105,7 @@ document.getElementById('registrationForm').addEventListener('submit', function(
             birthday: birthDate,
         };
 
-        const registrationId = new URLSearchParams(window.location.search).get('id');
-
-        const registrationUrl = //подключить к api
+        const registrationUrl = 'https://a34448-3f82.u.d-f.pw/api/User/register';
         
         fetch(registrationUrl, {
             method: 'POST',
@@ -127,9 +124,8 @@ document.getElementById('registrationForm').addEventListener('submit', function(
             if (data.token) {
                 localStorage.setItem('jwtToken', data.token);
                 localStorage.setItem('userEmail', email);
-                localStorage.setItem('userRole', data.role)
                 alert('Регистрация прошла успешно!');
-                
+                window.location.href = 'courses.html';
             }
         })
         .catch(error => {
