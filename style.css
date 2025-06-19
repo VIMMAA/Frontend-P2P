@@ -60,3 +60,7 @@ html, body {
 .applicationNum {
   cursor: pointer;
 }
+
+.coursPageBtn {
+  width: 160px;
+}

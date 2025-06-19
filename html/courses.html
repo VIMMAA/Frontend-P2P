@@ -39,6 +39,61 @@
     </header>
     <main>
         <div class="container mt-5">
+            <h2 class="mb-4">Курсы</h2>
+            <div class="accordion mb-4" id="courseAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingJoin">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseJoin" aria-expanded="false" aria-controls="collapseJoin">
+                            Присоединиться к курсу
+                        </button>
+                    </h2>
+                    <div id="collapseJoin" class="accordion-collapse collapse" aria-labelledby="headingJoin">
+                        <div class="accordion-body">
+                            <form id="joinCourseForm">
+                                <div class="mb-3">
+                                    <label for="joinCode" class="form-label">Введите код курса</label>
+                                    <input type="text" class="form-control" id="joinCode">
+                                    <div id="joinCodeFeedback" class="invalid-feedback"></div>
+                                </div>
+                                <button type="submit" class="btn btn-success coursPageBtn">Присоединиться</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingCreate">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreate" aria-expanded="false" aria-controls="collapseCreate">
+                            Создать курс
+                        </button>
+                    </h2>
+                    <div id="collapseCreate" class="accordion-collapse collapse" aria-labelledby="headingCreate">
+                        <div class="accordion-body">
+                            <form id="createCourseForm">
+                                <div class="mb-3">
+                                    <label for="courseName" class="form-label">Название курса</label>
+                                    <input type="text" class="form-control" id="courseName">
+                                    <div id="courseNameFeedback" class="invalid-feedback"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="courseChapter" class="form-label">Раздел</label>
+                                    <input type="text" class="form-control" id="courseChapter">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="courseSubject" class="form-label">Предмет</label>
+                                    <input type="text" class="form-control" id="courseSubject">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="courseAudience" class="form-label">Аудитория</label>
+                                    <input type="text" class="form-control" id="courseAudience">
+                                </div>
+                                <button type="submit" class="btn btn-success coursPageBtn">Создать</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="row justify-content-center">
                 <div class="col-12 col-md-6 col-lg-4 mb-4">
                     <div class="card h-100 shadow-sm" style="min-height: 120px;">
