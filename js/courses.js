@@ -98,6 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const collapseCreate = document.getElementById("collapseCreate");
                 const bsCollapse = bootstrap.Collapse.getInstance(collapseCreate);
                 bsCollapse.hide();
+                loadCourses();
             } else if (response.status === 401) {
                 localStorage.removeItem('jwtToken');
                 localStorage.removeItem('userEmail');
@@ -146,6 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 bsCollapse.hide();
                 setValid('joinCode');
                 resetFieldHighlight();
+                loadCourses();
             } else if (response.status === 409) {
                 const errorResult = await response.json();
                 setInvalid('joinCode', 'joinCodeFeedback', errorResult.message);
@@ -183,3 +185,83 @@ function resetFieldHighlight() {
         input.classList.remove('is-invalid', 'is-valid');
     });
 }
+
+function renderCourses(courses) {
+  const container = document.getElementById('coursesContainer');
+  const template = document.getElementById('courseCardTemplate');
+
+  container.innerHTML = '';
+
+  courses.forEach(course => {
+    const clone = template.content.cloneNode(true);
+    clone.querySelector('.courseTitle').textContent = course.courseName;
+
+    const chapterEl = clone.querySelector('.courseChapter').closest('p');
+    if (course.chapter && course.chapter !== '-') {
+      clone.querySelector('.courseChapter').textContent = course.chapter;
+    } else {
+      chapterEl.classList.add('d-none');
+    }
+
+    //clone.querySelector('.courseAuthor').textContent = course.author || '—'; потом добавлю имя создателя курса
+
+    const deleteBtn = clone.querySelector('.btn-delete');
+    const leaveBtn = clone.querySelector('.btn-leave');
+
+    if (course.role === 'Owner') {
+      deleteBtn.classList.remove('d-none');
+      deleteBtn.onclick = () => {
+        console.log(`Удалить курс: ${course.courseId}`);
+      };
+    } else {
+      leaveBtn.classList.remove('d-none');
+      leaveBtn.onclick = () => {
+        console.log(`Покинуть курс: ${course.courseId}`);
+      };
+    }
+
+    container.appendChild(clone);
+  });
+}
+
+function loadCourses() {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) {
+        console.error("Нет токена");
+        return;
+    }
+
+    fetch('https://a34448-3f82.u.d-f.pw/api/Course/list', {
+        method: 'GET',
+        headers: {
+        accept: '*/*',
+        'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else if (response.status === 401) {
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('userEmail');
+            window.location.href = 'authorization.html';
+        }else {
+            console.warn(`Error: ${response.status}`);
+        }
+    })
+    .then(data => {
+        const courses = [
+        ...(data.ownedCourses || []),
+        ...(data.teachingCourses || []),
+        ...(data.studentCourses || [])
+        ];
+        renderCourses(courses);
+    })
+    .catch(error => {
+        if (error !== 'Unauthorized') {
+        console.error("Ошибка при загрузке курсов:", error);
+        }
+    });
+}
+
+loadCourses();

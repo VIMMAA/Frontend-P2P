@@ -95,37 +95,36 @@
                 </div>
             </div>
             
-            <div class="row ">
-                <template id="courseCardTemplate">
-                    <div class="col-12 col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100 shadow-sm rounded-3 overflow-hidden" style="min-height: 120px;">
-                            <div class="card-body p-0 d-flex flex-column h-100">
+            <template id="courseCardTemplate">
+                <div class="col-12 col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm rounded-3 overflow-hidden" style="min-height: 120px;">
+                        <div class="card-body p-0 d-flex flex-column h-100">
 
-                                <div class="text-white p-3 d-flex justify-content-between align-items-start" style="background-color: #009788;">
-                                    <h5 class="card-title mb-0 courseTitle">Название курса</h5>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn p-0 border-0 bg-transparent text-white fs-5 btn-delete d-none" title="Удалить курс">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                        <button class="btn p-0 border-0 bg-transparent text-white fs-5 btn-leave d-none" title="Покинуть курс">
-                                            <i class="fa-solid fa-right-from-bracket"></i>
-                                        </button>
-                                    </div>
+                            <div class="text-white p-3 d-flex justify-content-between align-items-start" style="background-color: #009788;">
+                                <h5 class="card-title mb-0 courseTitle">Название курса</h5>
+                                <div class="d-flex gap-2">
+                                    <button class="btn p-0 border-0 bg-transparent text-white fs-5 btn-delete d-none" title="Удалить курс">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                    <button class="btn p-0 border-0 bg-transparent text-white fs-5 btn-leave d-none" title="Покинуть курс">
+                                        <i class="fa-solid fa-right-from-bracket"></i>
+                                    </button>
                                 </div>
-
-                                <div class="bg-white text-body p-3 flex-grow-1 d-flex flex-column justify-content-between">
-                                    <div>
-                                        <p class="card-text text-muted mb-0">Раздел: <span class="courseChapter">—</span></p>
-                                        <p class="card-text text-muted mb-0">Создатель: <span class="courseAuthor">—</span></p>
-                                    </div>
-                                </div>
-
                             </div>
-                        </div>
-                    </div>
-                </template>
 
-            </div>
+                            <div class="bg-white text-body p-3 flex-grow-1 d-flex flex-column justify-content-between">
+                                <div>
+                                    <p class="card-text text-muted mb-0">Раздел: <span class="courseChapter">—</span></p>
+                                    <p class="card-text text-muted mb-0">Создатель: <span class="courseAuthor">—</span></p>
+                                </div>
+                            </div>
+
+                         </div>
+                    </div>
+                </div>
+            </template>
+            
+            <div id="coursesContainer" class="row justify-content-start"></div>
         </div>
     </main>
     <footer>
