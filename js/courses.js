@@ -187,41 +187,55 @@ function resetFieldHighlight() {
 }
 
 function renderCourses(courses) {
-  const container = document.getElementById('coursesContainer');
-  const template = document.getElementById('courseCardTemplate');
+    const container = document.getElementById('coursesContainer');
+    const template = document.getElementById('courseCardTemplate');
 
-  container.innerHTML = '';
+    container.innerHTML = '';
 
-  courses.forEach(course => {
-    const clone = template.content.cloneNode(true);
-    clone.querySelector('.courseTitle').textContent = course.courseName;
+    courses.forEach(course => {
+        const clone = template.content.cloneNode(true);
+        clone.querySelector('.courseTitle').textContent = course.courseName;
 
-    const chapterEl = clone.querySelector('.courseChapter').closest('p');
-    if (course.chapter && course.chapter !== '-') {
-      clone.querySelector('.courseChapter').textContent = course.chapter;
-    } else {
-      chapterEl.classList.add('d-none');
-    }
+        const chapterEl = clone.querySelector('.courseChapter').closest('p');
+        if (course.chapter && course.chapter !== '-') {
+        clone.querySelector('.courseChapter').textContent = course.chapter;
+        } else {
+        chapterEl.classList.add('d-none');
+        }
 
-    //clone.querySelector('.courseAuthor').textContent = course.author || '—'; потом добавлю имя создателя курса
+        //clone.querySelector('.courseAuthor').textContent = course.author || '—'; потом добавлю имя создателя курса
 
-    const deleteBtn = clone.querySelector('.btn-delete');
-    const leaveBtn = clone.querySelector('.btn-leave');
+        const courseBox = clone.querySelector('.courseBox');
+        courseBox.style.cursor = 'pointer';
+        courseBox.addEventListener('click', () => {
+            window.location.href = `course.html?id=${course.courseId}`; //добавить переход на страницу с информацией о курсе
+        });
 
-    if (course.role === 'Owner') {
-      deleteBtn.classList.remove('d-none');
-      deleteBtn.onclick = () => {
-        console.log(`Удалить курс: ${course.courseId}`);
-      };
-    } else {
-      leaveBtn.classList.remove('d-none');
-      leaveBtn.onclick = () => {
-        console.log(`Покинуть курс: ${course.courseId}`);
-      };
-    }
+        const deleteBtn = clone.querySelector('.btn-delete');
+        const leaveBtn = clone.querySelector('.btn-leave');
 
-    container.appendChild(clone);
-  });
+        deleteBtn.addEventListener('click', (e) => e.stopPropagation());
+        leaveBtn.addEventListener('click', (e) => e.stopPropagation());
+
+        if (course.role === 'Owner') {
+            deleteBtn.classList.remove('d-none');
+            deleteBtn.onclick = () => {
+                if (confirm(`Вы уверены, что хотите удалить курс "${course.courseName}"?`)) {
+                    deleteCourse(course.courseId);
+                }
+            };
+        } else {
+            leaveBtn.classList.remove('d-none');
+            leaveBtn.onclick = () => {
+                if (confirm(`Вы уверены, что хотите покинуть курс "${course.courseName}"?`)) {
+                    leaveCourse(course.courseId);
+                }
+            };
+        }
+
+
+        container.appendChild(clone);
+    });
 }
 
 function loadCourses() {
@@ -265,3 +279,46 @@ function loadCourses() {
 }
 
 loadCourses();
+
+async function deleteCourse(courseId) {
+  const token = localStorage.getItem('jwtToken');
+  if (!token) return;
+
+  try {
+    const response = await fetch(`https://a34448-3f82.u.d-f.pw/api/Course/${courseId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (response.ok) {
+      loadCourses();
+    } else {
+      console.error(`Ошибка при удалении курса (${response.status})`);
+    }
+  } catch (error) {
+    console.error("Ошибка при удалении курса:", error);
+  }
+}
+
+async function leaveCourse(courseId) {
+  const token = localStorage.getItem('jwtToken');
+  if (!token) return;
+
+  try {
+    const response = await fetch(`https://a34448-3f82.u.d-f.pw/api/Course/leave/${courseId}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (response.ok) {
+      loadCourses();
+    } else {
+      console.error(`Ошибка при выходе из курса (${response.status})`);
+    }
+  } catch (error) {
+    console.error("Ошибка при выходе из курса:", error);
+  }
+}
