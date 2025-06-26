@@ -61,4 +61,51 @@ html, body {
   cursor: pointer;
 }
 
+textarea {
+  resize: none;
+}
 
+#modalContent {
+  padding: 20px}
+
+.comment-section {
+  padding-bottom: 10px;
+}
+
+#modalBody {
+  padding: 0 60px 0 60px;
+}
+
+#postModalLabel {
+  padding-left: 60px;
+}
+
+#modalRow {
+  height: 100%;
+}
+
+#leftPartModal, #rightPartModal {
+  padding-top: 20px;
+}
+
+#attachFilesBtn {
+  margin-left: 20px;
+}
+
+#peerReviewToggle {
+  transform: scale(1.5);  /* Увеличение в 1.5 раза */
+  transform-origin: left; /* Центр трансформации */
+}
+
+.text-container {
+  max-width: 75%; /* Или нужный тебе процент от ширины карточки */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.text-truncate-custom {
+  display: block;
+  white-space: normal;     /* Разрешает перенос */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Или просто обрезать если слишком длинный */
+}

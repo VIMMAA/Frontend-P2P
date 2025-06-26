@@ -5,80 +5,168 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Лента</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-<div class="container-fluid p-3 border-bottom d-flex justify-content-between align-items-center">
-    <button class="btn btn-outline-secondary">Назад</button>
-    <button class="btn btn-outline-primary d-flex align-items-center">
-        <i class="bi bi-person-circle me-1"></i> Профиль
-    </button>
-</div>
-
-<ul class="nav nav-tabs mt-2" id="feedTabs">
-    <li class="nav-item">
-        <a class="nav-link active" href="#">Задачи</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#">Пользователи</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#">Оценки</a>
-    </li>
-</ul>
-
-<div class="container mt-3" id="tasksFeed">
-    <div class="mb-3">
-        <div class="dropdown">
-            <button class="btn btn-success dropdown-toggle" type="button" id="createPostBtn" data-bs-toggle="dropdown" aria-expanded="false">
-                Создать пост
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="createPostBtn">
-                <li><a class="dropdown-item create-post-option" data-type="announcement" href="#">Объявление</a></li>
-                <li><a class="dropdown-item create-post-option" data-type="assignment" href="#">Задание</a></li>
-                <li><a class="dropdown-item create-post-option" data-type="materials" href="#">Материалы</a></li>
-            </ul>
-        </div>
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <button class="btn btn-outline-secondary">Назад</button>
+        <button class="btn btn-outline-primary">
+            <i class="bi bi-person-circle me-1"></i> Профиль
+        </button>
     </div>
 
-    <div id="postsContainer"></div>
+    <ul class="nav nav-tabs mb-4" id="feedTabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="#">Задачи</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="users.html">Пользователи</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="grades.html">Оценки</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="complaints.html">Жалобы</a>
+        </li>
+    </ul>
+
+    <div class="container mt-3" id="tasksFeed">
+        <div class="mb-3">
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="createPostBtn"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    Создать пост
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="createPostBtn">
+                    <li><a class="dropdown-item create-post-option" data-type="assignment" href="#">Задание</a></li>
+                    <li><a class="dropdown-item create-post-option" data-type="materials" href="#">Материалы</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="postsContainer"></div>
+    </div>
 </div>
 
-<!-- Модальное окно для создания/редактирования поста -->
+<!-- Основное модальное окно -->
 <div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="postModalLabel">Создать пост</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть" id="closePostBtn"></button>
             </div>
-            <div class="modal-body">
-                <form id="postForm">
-                    <input type="hidden" id="postType">
-                    <div class="mb-3">
-                        <label for="postTitle" class="form-label">Тема</label>
-                        <input type="text" class="form-control" id="postTitle" required minlength="4">
+            <div class="modal-body" id="modalBody">
+                <div class="row" id="modalRow">
+                    <!-- Левая часть -->
+                    <div class="col-md-9 pe-md-4 border-end" id="leftPartModal">
+                        <form id="postForm">
+                            <input type="hidden" id="postType">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" id="postTitle" placeholder="Введите тему">
+                            </div>
+                            <div class="mb-3">
+                                <textarea class="form-control" id="postDescription" rows="10" maxlength="1000" placeholder="Введите описание"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Прикрепленные файлы</label>
+                                <button type="button" class="btn btn-outline-primary" id="attachFilesBtn">Прикрепить</button>
+                                <input type="file" id="postFiles" multiple accept="*/*" style="display: none;">
+                                <div id="attachedFilesList" class="mt-2"></div>
+                            </div>
+                        </form>
                     </div>
-                    <div class="mb-3">
-                        <label for="postDescription" class="form-label">Описание</label>
-                        <textarea class="form-control" id="postDescription" rows="5" maxlength="1000"></textarea>
+
+                    <!-- Правая часть -->
+                    <div class="col-md-3 ps-md-4" id="rightPartModal">
+                        <div class="mb-3 d-flex align-items-center">
+                            <span class="me-2">P2P-оценивание</span>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="peerReviewToggle">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <input type="number" min="1" step="1" class="form-control" id="reviewPackageSize" placeholder="Введите размер пакета проверки" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="penaltyInput" class="mb-2">Штраф за пропуск проверки</label>
+                            <input type="number" class="form-control" id="penaltyInput" min="0" max="100" step="1" placeholder="0–100%">
+                        </div>
+                        <div class="mb-3">
+                            <label for="deadlineInput" class="mb-2">Срок сдачи</label>
+                            <input type="datetime-local" class="form-control" id="deadlineInput" onkeydown="return false;">
+                        </div>
+                        <div class="mb-3">
+                            <label for="pointsInput" class="mb-2">Баллы</label>
+                            <input type="number" class="form-control" id="pointsInput" min="0" max="100" step="1" placeholder="0–100">
+                        </div>
+
+                        <div class="mb-2">
+                            <label>Критерии оценивания</label>
+                        </div>
+                        <div class="dropdown mb-2">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                Добавить критерий
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" id="addNewCriterion">Добавить критерий</a></li>
+                                <li><a class="dropdown-item" href="#" id="selectExistingCriteria">Выбрать существующий</a></li>
+                            </ul>
+                        </div>
+                        <div id="criteriaList"></div>
                     </div>
-                    <div class="mb-3">
-                        <label for="postFiles" class="form-label">Прикрепленные файлы (макс. 5)</label>
-                        <input type="file" class="form-control" id="postFiles" multiple accept="*/*">
-                    </div>
-                </form>
+                </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer border-top">
                 <button type="button" class="btn btn-primary" id="publishPostBtn" disabled>Опубликовать</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Модалка: добавить критерий -->
+<div class="modal fade" id="addCriterionModal" tabindex="-1" aria-labelledby="addCriterionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить критерий</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control mb-2" id="criterionTitle" placeholder="Название критерия" maxlength="30">
+                <textarea class="form-control mb-2" id="criterionDescription" placeholder="Описание критерия"></textarea>
+                <input type="number" class="form-control" id="criterionPoints" placeholder="Баллы (1–100)" min="1" max="100" step="1">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="saveCriterionBtn" disabled>Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модалка: выбрать существующие -->
+<div class="modal fade" id="selectCriterionModal" tabindex="-1" aria-labelledby="selectCriterionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Выбрать критерии</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <div id="existingCriteriaList" class="form-check"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="selectExistingCriteriaBtn" disabled>Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Bootstrap icons и JS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="feed.js"></script>
+<script src="/js/feed.js"></script>
 </body>
 </html>
