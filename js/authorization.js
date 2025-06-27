@@ -1,3 +1,6 @@
+localStorage.removeItem('jwtToken');
+localStorage.removeItem('userEmail');
+
 const userEmail = localStorage.getItem('userEmail');
 const token = localStorage.getItem('jwtToken');
 

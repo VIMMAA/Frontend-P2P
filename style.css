@@ -46,3 +46,8 @@ footer {
   border-left: 8px solid #0d6efd;
   padding-left: 12px;
 }
+
+.appealBtn {
+  width: 110px;
+  height: 36px;
+}
