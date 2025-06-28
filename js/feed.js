@@ -25,6 +25,7 @@ const deadlineInput = document.getElementById("deadlineInput");
 const pointsInput = document.getElementById("pointsInput");
 let attachedFiles = [];
 let chosenCriteria = [];
+let chosenPost
 
 const saveBtn = document.getElementById('saveCriterionBtn');
 const criteriaListEl = document.getElementById('criteriaList');
@@ -91,7 +92,9 @@ async function loadCourseData() {
     const courseId = getCourseIdFromURL();
 
     try {
-        const response = await api.fetchWithAuth(`/Course/${courseId}`);
+        const response = await api.fetchWithAuth(`/Course/${courseId}`, {
+            method: 'GET',
+        });
 
         if (!response.ok) new Error(`Ошибка загрузки курса: ${response.status}`);
         const course = await response.json();
@@ -99,9 +102,12 @@ async function loadCourseData() {
 
         tasks.forEach(task => {
             const taskTitle = task.name;
-            const taskDescription = task.topic;
-            const author = course.owner;
-            const date = new Date(task.createTime).toLocaleDateString("ru-RU");
+            const taskDescription = task.description;
+            const author = task.authorId;
+            const date = task.createTime;
+
+            const newPost = renderPost(taskTitle, taskDescription, date, author);
+            postsContainer.prepend(newPost);
         });
     } catch (error) {
         console.error("Ошибка при загрузке курса:", error);
@@ -232,6 +238,7 @@ function initializePage() {
                 rightPartForm.disabled = false;
 
                 leftPartModal.classList.add('border-end');
+                chosenPost = 1
 
                 postModal.show();
             } else {
@@ -242,6 +249,7 @@ function initializePage() {
                 rightPartForm.disabled = true;
 
                 leftPartModal.classList.remove('border-end');
+                chosenPost = 0
 
                 postModal.show();
             }
@@ -255,23 +263,34 @@ function initializePage() {
 
         const localDate = new Date(deadlineInput.value);
 
-        const requestBody = {
-            materialTaskWork: {
+        let materialName
+        let requestBody
+        if(chosenPost) {
+            materialName = 'materialWork'
+            requestBody = {
+                materialTaskWork: {
+                    name: postTitle.value,
+                    deadline: localDate.toISOString(),
+                    check: "P2P",
+                    description: postDescription.value,
+                    penalty: parseInt(penaltyInput.value) || 0,
+                    solutionsToCheckN: parseInt(reviewPackageSize.value) || 0,
+                    isP2P: peerReviewToggle.checked
+                },
+                criteriaAssignments: chosenCriteria
+            };
+        }
+        else {
+            materialName = 'materialRead'
+            requestBody = {
                 name: postTitle.value,
-                topic: "test topic",
-                deadline: localDate.toISOString(),
-                check: "P2P",
-                instructions: postDescription.value,
-                penalty: parseInt(penaltyInput.value) || 0,
-                solutionsToCheckN: parseInt(reviewPackageSize.value) || 0,
-                isP2P: peerReviewToggle.checked
-            },
-            criteriaAssignments: chosenCriteria
-        };
+                description: postDescription.value,
+            };
+        }
 
         try {
 
-            const response = await api.fetchWithAuth(`/Task/${courseId}/materialWork`, {
+            const response = await api.fetchWithAuth(`/Task/${courseId}/${materialName}`, {
                 method: 'POST',
                 body: JSON.stringify(requestBody)
             });
@@ -285,7 +304,9 @@ function initializePage() {
 
             console.log("Успешно отправлено!");
 
-            const newPost = renderPost(postTitle.value, postDescription.value, dateString);
+            const responseData = await response.json();
+            const newPost = renderPost(postTitle.value, postDescription.value, dateString, userEmail);
+            newPost.setAttribute('id', `${responseData.id}`);
 
             postsContainer.prepend(newPost);
             postModal.hide();
@@ -301,28 +322,50 @@ function initializePage() {
         postModal.hide();
     })
 
-    postsContainer.addEventListener("click", function (e) {
+    postsContainer.addEventListener("click", async function (e) {
         if (e.target.closest(".send-comment")) {
             const card = e.target.closest(".card");
             const input = card.querySelector(".comment-input");
             const commentText = input.value.trim();
             if (commentText !== "") {
-                const now = new Date();
-                const time = now.toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"});
-                const date = now.toLocaleDateString("ru-RU");
-                const commentSection = card.querySelector(".comment-section");
-                const comment = document.createElement("div");
-                comment.className = "pt-2";
-                comment.innerHTML = `<strong>Вы</strong> (${date} ${time}): ${commentText}`;
-                commentSection.appendChild(comment);
-                input.value = "";
+                try {
+                    // Отправка на сервер
+                    const response = await api.fetchWithAuth(`/Comments/${card.id}/task`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}` // или другой способ авторизации
+                        },
+                        body: JSON.stringify({text: commentText})
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Ошибка сервера: ${response.status}`);
+                    }
+
+                    const result = await response.json(); // { message: "Комментарий добавлен" }
+
+                    incrementCommentCount(card);
+
+                    // Отображение комментария в DOM
+                    const now = new Date();
+                    const time = now.toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"});
+                    const date = now.toLocaleDateString("ru-RU");
+
+                    input.value = "";
+
+                } catch (err) {
+                    console.error("Не удалось отправить комментарий:", err);
+                    alert("Ошибка при отправке комментария. Попробуйте позже.");
+                }
             }
         }
     });
 }
 
-function renderPost(title, description, dateString) {
+function renderPost(title, description, dateString, author, initialCommentCount = 0) {
     const newPost = document.createElement("div");
+    const ending = getEndingOfTheWord(initialCommentCount);
     newPost.className = "card mb-3";
     newPost.innerHTML = `
       <div class="card-body">
@@ -331,9 +374,10 @@ function renderPost(title, description, dateString) {
           <i class="bi bi-pencil-square edit-post" style="cursor:pointer"></i>
         </div>
         <p class="card-text">${description}</p>
-        <p class="text-muted">Автор: ${userEmail} | Дата: ${dateString}</p>
+        <p class="text-muted">Автор: ${author} | Дата: ${dateString}</p>
         <hr>
-        <div class="input-group">
+        <p class="comment-count text-secondary">${initialCommentCount} комментари${ending} под постом</p>
+        <div class="input-group mt-2">
           <input type="text" class="form-control comment-input" placeholder="Введите комментарий...">
           <button class="btn btn-outline-secondary send-comment" type="button">
             <i class="bi bi-send"></i>
@@ -345,6 +389,27 @@ function renderPost(title, description, dateString) {
 
     return newPost;
 }
+
+function getEndingOfTheWord(initialCommentCount) {
+    if(initialCommentCount % 10 === 1 && initialCommentCount !== 11) return 'й'
+    else if((initialCommentCount % 10 === 2 || initialCommentCount % 10 === 3 || initialCommentCount % 10 === 4)
+        && initialCommentCount !== 12 && initialCommentCount !== 13 && initialCommentCount !== 14) return 'я'
+    else return 'ев'
+}
+
+function incrementCommentCount(postElement) {
+    const countEl = postElement.querySelector(".comment-count");
+    if (countEl) {
+        const match = countEl.textContent.match(/\d+/);
+        if (match) {
+            let count = parseInt(match[0], 10);
+            count++;
+            const ending = getEndingOfTheWord(count);
+            countEl.textContent = `${count} комментари${ending} под постом`;
+        }
+    }
+}
+
 
 function getSavedCriteria() {
     return JSON.parse(localStorage.getItem('criteria')) || [];
@@ -373,8 +438,8 @@ function createCriterionCard(criterion, criteriaListEl) {
 }
 
 function getPointsName(points) {
-    if (points % 10 === 1) return 'балл';
-    if ([2, 3, 4].includes(points % 10)) return 'балла';
+    if (points % 10 === 1 && points !== 11) return 'балл';
+    if ([2, 3, 4].includes(points % 10) && points !== 12 && points !== 13 && points !== 14) return 'балла';
     return 'баллов';
 }
 
@@ -463,9 +528,9 @@ navLinks.forEach(link => {
         if (name === "Задачи") {
             location.href = "feed.html";
         } else if (name === "Пользователи") {
-            location.href = "users.html";
-        } else if (name === "Оценки") {
-            location.href = "grades.html";
+            location.href = "userList.html";
+        } else if (name === "Жалобы") {
+            location.href = "appealList.html"
         }
     });
 });
