@@ -127,7 +127,6 @@ function initializePage() {
 
         renderAttachedFiles();
         validateForm();
-        postForm.reset();
     });
 
     attachFilesBtn.addEventListener("click", function () {
@@ -300,13 +299,14 @@ function renderExistingCriteria() {
     criteria.forEach((crit, idx) => {
         const id = `existing-crit-${idx}`;
         const div = document.createElement('div');
-        div.className = 'form-check';
+        div.className = 'card mb-2 p-2 d-flex justify-content-between align-items-center flex-row';
         div.innerHTML = `
-        <input class="form-check-input" type="checkbox" value="${idx}" id="${id}">
+        <input class="form-check-input form-check" type="checkbox" value="${idx}" id="${id}">
         <label class="form-check-label" for="${id}">
           <strong>${crit.title}</strong> (${crit.points} баллов)<br>
           <small>${crit.description}</small>
         </label>
+        <button type="button" class="btn-close ms-3" aria-label="Удалить"></button>
       `;
         list.appendChild(div);
     });
