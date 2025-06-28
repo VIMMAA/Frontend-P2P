@@ -154,7 +154,7 @@ function initializePage() {
 
                 document.getElementById('selectExistingCriteria').addEventListener('click', (e) => {
                     e.preventDefault();
-                    renderExistingCriteria();
+                    renderExistingCriteria(criteriaListEl);
                     new bootstrap.Modal(document.getElementById('selectCriterionModal')).show();
                 });
 
@@ -163,7 +163,7 @@ function initializePage() {
                     const allCriteria = getSavedCriteria();
 
                     checkboxes.forEach(cb => {
-                        const crit = allCriteria[parseInt(cb.value)];
+                        const crit = allCriteria.find(criterion => criterion.id === cb.id);
                         createCriterionCard(crit, criteriaListEl);
                     });
 
@@ -172,11 +172,12 @@ function initializePage() {
                 });
 
                 saveBtn.addEventListener('click', () => {
+                    const id = crypto.randomUUID();
                     const title = document.getElementById('criterionTitle').value.trim();
                     const description = document.getElementById('criterionDescription').value.trim();
                     const points = parseInt(document.getElementById('criterionPoints').value, 10);
 
-                    const criterion = {title, description, points};
+                    const criterion = {id, title, description, points};
                     saveCriterionToStorage(criterion);
                     createCriterionCard(criterion, criteriaListEl);
 
@@ -278,6 +279,7 @@ function saveCriterionToStorage(criterion) {
 function createCriterionCard(criterion, criteriaListEl) {
     const card = document.createElement('div');
     card.className = 'card mb-2 p-2 d-flex justify-content-between align-items-center flex-row';
+    card.setAttribute('data-id', criterion.id);
     card.innerHTML = `
   <div class="text-container me-2">
     <strong class="d-block text-truncate-custom">${criterion.title}</strong>
@@ -290,27 +292,49 @@ function createCriterionCard(criterion, criteriaListEl) {
     criteriaListEl.appendChild(card);
 }
 
+function getPointsName(points) {
+    if (points % 10 === 1) return 'балл';
+    if ([2, 3, 4].includes(points % 10)) return 'балла';
+    return 'баллов';
+}
 
-function renderExistingCriteria() {
+function renderExistingCriteria(criteriaListEl) {
     const list = document.getElementById('existingCriteriaList');
     list.innerHTML = '';
-    const criteria = getSavedCriteria();
+    let criteria = getSavedCriteria();
 
     criteria.forEach((crit, idx) => {
-        const id = `existing-crit-${idx}`;
+        const id = crit.id;
         const div = document.createElement('div');
+        const pointsName = getPointsName(crit.points);
+
         div.className = 'card mb-2 p-2 d-flex justify-content-between align-items-center flex-row';
         div.innerHTML = `
-        <input class="form-check-input form-check" type="checkbox" value="${idx}" id="${id}">
-        <label class="form-check-label" for="${id}">
-          <strong>${crit.title}</strong> (${crit.points} баллов)<br>
-          <small>${crit.description}</small>
-        </label>
+        <div class="d-flex align-items-center">
+            <input class="form-check-input" type="checkbox" value="${idx}" id="${id}" style="transform: scale(1.5);">
+            <label class="form-check-label" for="${id}">
+              <strong>${crit.title}</strong> (${crit.points} ${pointsName})<br>
+              <small>${crit.description}</small>
+            </label>
+        </div>
         <button type="button" class="btn-close ms-3" aria-label="Удалить"></button>
       `;
+
+        // Обработчик удаления
+        div.querySelector('.btn-close').addEventListener('click', () => {
+            criteria = criteria.filter(criterion => criterion.id !== crit.id)
+            localStorage.setItem('criteria', JSON.stringify(criteria));
+            div.remove();
+
+            // Удаление из выбранного списка (по data-id)
+            const selectedCard = criteriaListEl.querySelector(`[data-id="${crit.id}"]`);
+            if (selectedCard) selectedCard.remove();
+        });
+
         list.appendChild(div);
     });
 
+    // Обработка выбора чекбоксов
     list.querySelectorAll('input[type=checkbox]').forEach(cb => {
         cb.addEventListener('change', () => {
             const anyChecked = [...list.querySelectorAll('input[type=checkbox]')].some(i => i.checked);
@@ -318,6 +342,7 @@ function renderExistingCriteria() {
         });
     });
 }
+
 
 function validateForm() {
     const titleValid = postTitle.value.trim().replace(/[^a-zA-Zа-яА-Я]/g, '').length >= 4;
