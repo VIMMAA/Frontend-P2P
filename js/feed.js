@@ -1,11 +1,14 @@
-import {generateRightPartModal} from './taskInfo.js';
+import {validateRightForm} from './validateRightForm.js';
 import {ApiClient} from './requests/ApiClient.js';
 
 document.addEventListener("DOMContentLoaded", initializePage);
 
 const postModal = new bootstrap.Modal(document.getElementById("postModal"));
-const postForm = document.getElementById("postForm");
-const modalRow = document.getElementById("modalRow");
+const addCriterionModal = new bootstrap.Modal(document.getElementById('addCriterionModal'));
+const selectCriterionModal = new bootstrap.Modal(document.getElementById('selectCriterionModal'));
+
+const leftPartForm = document.getElementById("leftPartForm");
+const rightPartForm = document.getElementById("rightPartForm");
 const leftPartModal = document.getElementById("leftPartModal");
 const publishPostBtn = document.getElementById("publishPostBtn");
 const closePostBtn = document.getElementById("closePostBtn");
@@ -15,7 +18,19 @@ const postFiles = document.getElementById("postFiles");
 const postsContainer = document.getElementById("postsContainer");
 const attachedFilesList = document.getElementById("attachedFilesList");
 const attachFilesBtn = document.getElementById("attachFilesBtn");
+const peerReviewToggle = document.getElementById("peerReviewToggle");
+const reviewPackageSize = document.getElementById("reviewPackageSize");
+const penaltyInput = document.getElementById("penaltyInput");
+const deadlineInput = document.getElementById("deadlineInput");
+const pointsInput = document.getElementById("pointsInput");
 let attachedFiles = [];
+let chosenCriteria = [];
+
+const saveBtn = document.getElementById('saveCriterionBtn');
+const criteriaListEl = document.getElementById('criteriaList');
+
+const api = new ApiClient();
+
 let editingPost;
 
 
@@ -72,8 +87,6 @@ function handleLogout() {
     window.location.href = 'authorization.html';
 }
 
-const api = new ApiClient();
-
 async function loadCourseData() {
     const courseId = getCourseIdFromURL();
 
@@ -82,7 +95,14 @@ async function loadCourseData() {
 
         if (!response.ok) new Error(`Ошибка загрузки курса: ${response.status}`);
         const course = await response.json();
-        console.log("Курс:", course);
+        const tasks = course.tasks || [];
+
+        tasks.forEach(task => {
+            const taskTitle = task.name;
+            const taskDescription = task.topic;
+            const author = course.owner;
+            const date = new Date(task.createTime).toLocaleDateString("ru-RU");
+        });
     } catch (error) {
         console.error("Ошибка при загрузке курса:", error);
     }
@@ -112,10 +132,76 @@ function renderTasks(course) {
     });
 }
 
+validateRightForm(rightPartForm);
+
+document.getElementById('addNewCriterion').addEventListener('click', (e) => {
+    e.preventDefault();
+    addCriterionModal.show();
+});
+
+document.getElementById('selectExistingCriteria').addEventListener('click', (e) => {
+    e.preventDefault();
+    renderExistingCriteria(criteriaListEl);
+    selectCriterionModal.show();
+});
+
+document.getElementById('selectExistingCriteriaBtn').addEventListener('click', () => {
+    const checkboxes = document.querySelectorAll('#existingCriteriaList input[type=checkbox]:checked');
+    const allCriteria = getSavedCriteria();
+
+    checkboxes.forEach(cb => {
+        const crit = allCriteria.find(criterion => criterion.id === cb.id);
+        chosenCriteria.push(crit);
+        createCriterionCard(crit, criteriaListEl);
+    });
+
+    selectCriterionModal.hide();
+    document.getElementById('selectExistingCriteriaBtn').disabled = true;
+});
+
+saveBtn.addEventListener('click', () => {
+    const id = crypto.randomUUID();
+    const title = document.getElementById('criterionTitle').value.trim();
+    const description = document.getElementById('criterionDescription').value.trim();
+    const points = parseInt(document.getElementById('criterionPoints').value, 10);
+
+    const criterion = {id, title, description, points};
+    saveCriterionToStorage(criterion);
+    createCriterionCard(criterion, criteriaListEl);
+    chosenCriteria.push(criterion);
+
+    ['criterionTitle', 'criterionDescription', 'criterionPoints'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    saveBtn.disabled = true;
+    addCriterionModal.hide();
+});
+
+function validateCriterionForm() {
+    const title = document.getElementById('criterionTitle').value.trim();
+    const points = parseInt(document.getElementById('criterionPoints').value, 10);
+    const validTitle = title.replace(/[^a-zA-Zа-яА-Я]/g, '').length >= 4;
+    const validPoints = Number.isInteger(points) && points >= 1 && points <= 100;
+    saveBtn.disabled = !(validTitle && validPoints);
+}
+
+['criterionTitle', 'criterionPoints'].forEach(id => {
+    document.getElementById(id).addEventListener('input', validateCriterionForm,);
+});
+
+function clearModal() {
+    leftPartForm.reset();
+    rightPartForm.reset();
+
+    attachedFilesList.innerHTML = "";
+    criteriaListEl.innerHTML = "";
+    attachedFiles = []
+    chosenCriteria = []
+}
 
 function initializePage() {
 
-    const courseId = getCourseIdFromURL(); // или задай вручную
+    const courseId = getCourseIdFromURL();
     loadCourseData(courseId);
 
     postTitle.addEventListener("input", validateForm);
@@ -139,73 +225,22 @@ function initializePage() {
             const value = this.dataset.value;
             if (value === "1") {
                 editingPost = null;
-                postForm.reset();
+                clearModal();
                 validateForm();
-                if (modalRow.children.length === 1) generateRightPartModal(modalRow);
+
+                rightPartForm.style.display = '';
+                rightPartForm.disabled = false;
+
                 leftPartModal.classList.add('border-end');
-
-                const saveBtn = document.getElementById('saveCriterionBtn');
-                const criteriaListEl = document.getElementById('criteriaList');
-
-                document.getElementById('addNewCriterion').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    new bootstrap.Modal(document.getElementById('addCriterionModal')).show();
-                });
-
-                document.getElementById('selectExistingCriteria').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    renderExistingCriteria(criteriaListEl);
-                    new bootstrap.Modal(document.getElementById('selectCriterionModal')).show();
-                });
-
-                document.getElementById('selectExistingCriteriaBtn').addEventListener('click', () => {
-                    const checkboxes = document.querySelectorAll('#existingCriteriaList input[type=checkbox]:checked');
-                    const allCriteria = getSavedCriteria();
-
-                    checkboxes.forEach(cb => {
-                        const crit = allCriteria.find(criterion => criterion.id === cb.id);
-                        createCriterionCard(crit, criteriaListEl);
-                    });
-
-                    bootstrap.Modal.getInstance(document.getElementById('selectCriterionModal')).hide();
-                    document.getElementById('selectExistingCriteriaBtn').disabled = true;
-                });
-
-                saveBtn.addEventListener('click', () => {
-                    const id = crypto.randomUUID();
-                    const title = document.getElementById('criterionTitle').value.trim();
-                    const description = document.getElementById('criterionDescription').value.trim();
-                    const points = parseInt(document.getElementById('criterionPoints').value, 10);
-
-                    const criterion = {id, title, description, points};
-                    saveCriterionToStorage(criterion);
-                    createCriterionCard(criterion, criteriaListEl);
-
-                    ['criterionTitle', 'criterionDescription', 'criterionPoints'].forEach(id => {
-                        document.getElementById(id).value = '';
-                    });
-                    saveBtn.disabled = true;
-                    bootstrap.Modal.getInstance(document.getElementById('addCriterionModal')).hide();
-                });
-
-                function validateCriterionForm() {
-                    const title = document.getElementById('criterionTitle').value.trim();
-                    const points = parseInt(document.getElementById('criterionPoints').value, 10);
-                    const validTitle = title.replace(/[^a-zA-Zа-яА-Я]/g, '').length >= 4;
-                    const validPoints = Number.isInteger(points) && points >= 1 && points <= 100;
-                    saveBtn.disabled = !(validTitle && validPoints);
-                }
-
-                ['criterionTitle', 'criterionPoints'].forEach(id => {
-                    document.getElementById(id).addEventListener('input', validateCriterionForm,);
-                });
 
                 postModal.show();
             } else {
                 editingPost = null;
-                postForm.reset();
+                clearModal();
                 validateForm();
-                if (modalRow.children.length > 1) modalRow.children[1].remove();
+                rightPartForm.style.display = 'none';
+                rightPartForm.disabled = true;
+
                 leftPartModal.classList.remove('border-end');
 
                 postModal.show();
@@ -214,35 +249,55 @@ function initializePage() {
     });
 
 
-    publishPostBtn.addEventListener("click", function () {
+    publishPostBtn.addEventListener("click", async function () {
         const now = new Date();
         const dateString = now.toLocaleDateString("ru-RU");
-        const newPost = document.createElement("div");
-        newPost.className = "card mb-3";
-        newPost.innerHTML = `
-      <div class="card-body">
-        <div class="d-flex justify-content-between">
-          <h5 class="card-title">${postTitle.value}</h5>
-          <i class="bi bi-pencil-square edit-post" style="cursor:pointer"></i>
-        </div>
-        <p class="card-text">${postDescription.value}</p>
-        <p class="text-muted">Автор: Вы | Дата: ${dateString}</p>
-        <hr>
-        <div class="input-group">
-          <input type="text" class="form-control comment-input" placeholder="Введите комментарий...">
-          <button class="btn btn-outline-secondary send-comment" type="button">
-            <i class="bi bi-send"></i>
-          </button>
-        </div>
-        <div class="comment-section mt-2"></div>
-      </div>
-    `;
-        postsContainer.prepend(newPost);
-        postModal.hide();
+
+        const localDate = new Date(deadlineInput.value);
+
+        const requestBody = {
+            materialTaskWork: {
+                name: postTitle.value,
+                topic: "test topic",
+                deadline: localDate.toISOString(),
+                check: "P2P",
+                instructions: postDescription.value,
+                penalty: parseInt(penaltyInput.value) || 0,
+                solutionsToCheckN: parseInt(reviewPackageSize.value) || 0,
+                isP2P: peerReviewToggle.checked
+            },
+            criteriaAssignments: chosenCriteria
+        };
+
+        try {
+
+            const response = await api.fetchWithAuth(`/Task/${courseId}/materialWork`, {
+                method: 'POST',
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Ошибка при отправке:", errorData);
+                alert("Ошибка при отправке: " + errorData.message || response.statusText);
+                return;
+            }
+
+            console.log("Успешно отправлено!");
+
+            const newPost = renderPost(postTitle.value, postDescription.value, dateString);
+
+            postsContainer.prepend(newPost);
+            postModal.hide();
+
+        } catch (err) {
+            console.error("Ошибка при публикации:", err);
+            alert("Не удалось отправить данные.");
+        }
     });
 
     closePostBtn.addEventListener("click", function () {
-        postForm.reset();
+        clearModal()
         postModal.hide();
     })
 
@@ -264,6 +319,31 @@ function initializePage() {
             }
         }
     });
+}
+
+function renderPost(title, description, dateString) {
+    const newPost = document.createElement("div");
+    newPost.className = "card mb-3";
+    newPost.innerHTML = `
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <h5 class="card-title">${title}</h5>
+          <i class="bi bi-pencil-square edit-post" style="cursor:pointer"></i>
+        </div>
+        <p class="card-text">${description}</p>
+        <p class="text-muted">Автор: ${userEmail} | Дата: ${dateString}</p>
+        <hr>
+        <div class="input-group">
+          <input type="text" class="form-control comment-input" placeholder="Введите комментарий...">
+          <button class="btn btn-outline-secondary send-comment" type="button">
+            <i class="bi bi-send"></i>
+          </button>
+        </div>
+        <div class="comment-section mt-2"></div>
+      </div>
+    `;
+
+    return newPost;
 }
 
 function getSavedCriteria() {
