@@ -1,0 +1,52 @@
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#solutionModal">Открыть решение</button>
+
+<!-- Модальное окно -->
+<div class="modal fade" id="solutionModal" tabindex="-1" aria-labelledby="solutionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button class="btn btn-outline-secondary me-3">&larr;</button>
+        <h5 class="modal-title w-100" id="solutionModalLabel">
+          Тема задания · 24.06.2025 · Иван Иванов
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <!-- Левая часть -->
+          <div class="col-md-8">
+            <div class="mb-4 p-3 border rounded">
+              <h5>Тема</h5>
+              <p>Описание</p>
+              <div>
+                <strong>Прикрепленные файлы:</strong>
+                <ul id="attachedFiles" class="list-unstyled"></ul>
+                <button class="btn btn-sm btn-outline-primary mt-2" onclick="downloadAll()">Скачать все</button>
+              </div>
+            </div>
+
+            <div class="p-3 border rounded">
+              <h6>Комментарии</h6>
+              <ul class="list-group mb-3" id="commentsList">
+              </ul>
+              <div class="input-group">
+                <input type="text" id="newComment" class="form-control" placeholder="Добавить комментарий..." />
+                <button class="btn btn-outline-secondary" onclick="addComment()">Отправить</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Правая часть -->
+          <div class="col-md-4">
+            <div id="gradesList">
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <strong>Итог: <span id="averageGrade">-</span></strong>
+              <button class="btn btn-outline-danger btn-sm">Жалоба</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

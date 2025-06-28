@@ -8,17 +8,17 @@
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
+<div class="d-flex justify-content-between align-items-center" id="topContainer">
+    <button class="btn btn-outline-secondary">Назад</button>
+    <button class="btn btn-outline-primary">
+        <i class="bi bi-person-circle me-1"></i> Профиль
+    </button>
+</div>
 <div class="container py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <button class="btn btn-outline-secondary">Назад</button>
-        <button class="btn btn-outline-primary">
-            <i class="bi bi-person-circle me-1"></i> Профиль
-        </button>
-    </div>
 
     <ul class="nav nav-tabs mb-4" id="feedTabs">
         <li class="nav-item">
-            <a class="nav-link active" href="#">Задачи</a>
+            <a class="nav-link active" href="#">Лента</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="users.html">Пользователи</a>
@@ -39,8 +39,10 @@
                     Создать пост
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="createPostBtn">
-                    <li><a class="dropdown-item create-post-option" data-type="assignment" href="#">Задание</a></li>
-                    <li><a class="dropdown-item create-post-option" data-type="materials" href="#">Материалы</a></li>
+                    <li><a class="dropdown-item create-post-option" data-type="assignment" data-value="1" href="#">Задание</a>
+                    </li>
+                    <li><a class="dropdown-item create-post-option" data-type="materials" data-value="2" href="#">Материалы</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -55,7 +57,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="postModalLabel">Создать пост</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть" id="closePostBtn"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"
+                        id="closePostBtn"></button>
             </div>
             <div class="modal-body" id="modalBody">
                 <div class="row" id="modalRow">
@@ -67,54 +70,17 @@
                                 <input type="text" class="form-control" id="postTitle" placeholder="Введите тему">
                             </div>
                             <div class="mb-3">
-                                <textarea class="form-control" id="postDescription" rows="10" maxlength="1000" placeholder="Введите описание"></textarea>
+                                <textarea class="form-control" id="postDescription" rows="10" maxlength="1000"
+                                          placeholder="Введите описание"></textarea>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Прикрепленные файлы</label>
-                                <button type="button" class="btn btn-outline-primary" id="attachFilesBtn">Прикрепить</button>
+                                <button type="button" class="btn btn-outline-primary" id="attachFilesBtn">Прикрепить
+                                </button>
                                 <input type="file" id="postFiles" multiple accept="*/*" style="display: none;">
                                 <div id="attachedFilesList" class="mt-2"></div>
                             </div>
                         </form>
-                    </div>
-
-                    <!-- Правая часть -->
-                    <div class="col-md-3 ps-md-4" id="rightPartModal">
-                        <div class="mb-3 d-flex align-items-center">
-                            <span class="me-2">P2P-оценивание</span>
-                            <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" id="peerReviewToggle">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <input type="number" min="1" step="1" class="form-control" id="reviewPackageSize" placeholder="Введите размер пакета проверки" disabled>
-                        </div>
-                        <div class="mb-3">
-                            <label for="penaltyInput" class="mb-2">Штраф за пропуск проверки</label>
-                            <input type="number" class="form-control" id="penaltyInput" min="0" max="100" step="1" placeholder="0–100%">
-                        </div>
-                        <div class="mb-3">
-                            <label for="deadlineInput" class="mb-2">Срок сдачи</label>
-                            <input type="datetime-local" class="form-control" id="deadlineInput" onkeydown="return false;">
-                        </div>
-                        <div class="mb-3">
-                            <label for="pointsInput" class="mb-2">Баллы</label>
-                            <input type="number" class="form-control" id="pointsInput" min="0" max="100" step="1" placeholder="0–100">
-                        </div>
-
-                        <div class="mb-2">
-                            <label>Критерии оценивания</label>
-                        </div>
-                        <div class="dropdown mb-2">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                Добавить критерий
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" id="addNewCriterion">Добавить критерий</a></li>
-                                <li><a class="dropdown-item" href="#" id="selectExistingCriteria">Выбрать существующий</a></li>
-                            </ul>
-                        </div>
-                        <div id="criteriaList"></div>
                     </div>
                 </div>
             </div>
@@ -125,8 +91,10 @@
     </div>
 </div>
 
+
 <!-- Модалка: добавить критерий -->
-<div class="modal fade" id="addCriterionModal" tabindex="-1" aria-labelledby="addCriterionModalLabel" aria-hidden="true">
+<div class="modal fade" id="addCriterionModal" tabindex="-1" aria-labelledby="addCriterionModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -134,9 +102,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
             </div>
             <div class="modal-body">
-                <input type="text" class="form-control mb-2" id="criterionTitle" placeholder="Название критерия" maxlength="30">
-                <textarea class="form-control mb-2" id="criterionDescription" placeholder="Описание критерия"></textarea>
-                <input type="number" class="form-control" id="criterionPoints" placeholder="Баллы (1–100)" min="1" max="100" step="1">
+                <input type="text" class="form-control mb-2" id="criterionTitle" placeholder="Название критерия"
+                       maxlength="30">
+                <textarea class="form-control mb-2" id="criterionDescription"
+                          placeholder="Описание критерия"></textarea>
+                <input type="number" class="form-control" id="criterionPoints" placeholder="Баллы (1–100)" min="1"
+                       max="100" step="1">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="saveCriterionBtn" disabled>Сохранить</button>
@@ -145,8 +116,9 @@
     </div>
 </div>
 
-<!-- Модалка: выбрать существующие -->
-<div class="modal fade" id="selectCriterionModal" tabindex="-1" aria-labelledby="selectCriterionModalLabel" aria-hidden="true">
+<!-- Модалка: выбрать существующие критерии -->
+<div class="modal fade" id="selectCriterionModal" tabindex="-1" aria-labelledby="selectCriterionModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

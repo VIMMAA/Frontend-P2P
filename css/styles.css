@@ -93,19 +93,23 @@ textarea {
 }
 
 #peerReviewToggle {
-  transform: scale(1.5);  /* Увеличение в 1.5 раза */
-  transform-origin: left; /* Центр трансформации */
+  transform: scale(1.5);
+  transform-origin: left;
 }
 
 .text-container {
-  max-width: 75%; /* Или нужный тебе процент от ширины карточки */
+  max-width: 75%;
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
 
 .text-truncate-custom {
   display: block;
-  white-space: normal;     /* Разрешает перенос */
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis; /* Или просто обрезать если слишком длинный */
+  text-overflow: ellipsis;
+}
+
+#topContainer {
+  margin: 20px 20px 0 20px;
 }
