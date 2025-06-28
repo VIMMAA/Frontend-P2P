@@ -54,18 +54,15 @@ function handleLogout() {
     window.location.href = 'authorization.html';
 }
 
-document.querySelectorAll('.appeal-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const solutionId = card.getAttribute('data-solution-id');
-      window.location.href = `/solutions/${solutionId}`;
-    });
-  });
-
+//const userRole = localStorage.getItem('userRole');
+const userRole = 'teacher'
+if (userRole === 'student') {
+    window.location.href = 'courses.html';
+}
 
 // async function loadAppeals() {
 //   const token = localStorage.getItem('jwtToken');
 
-//   fetch('', {   //добавить подключение к api
 //     method: 'GET',
 //     headers: {
 //       accept: 'application/json',
@@ -104,23 +101,42 @@ function renderAppeals(appeals) {
     const card = clone.querySelector('.appeal-card');
     const modal = clone.querySelector('.appealModal');
 
-    card.querySelector('.appealNum').textContent = appeal.id;
-    card.querySelector('.appealAuthor').textContent = `Автор: ${appeal.authorFullName}`;
-    card.querySelector('.appealTitle').textContent = `Тема: ${appeal.topic}`;
+    card.querySelector('.appealNum').textContent = appeal.numb;
+    card.querySelector('.appealAuthor').textContent = `Автор: ${appeal.author}`;
+    card.querySelector('.appealTitle').textContent = `Тема: ${appeal.theme}`;
 
     const btn = card.querySelector('[data-bs-toggle="modal"]');
     btn.setAttribute('data-bs-target', `#${modalId}`);
 
     modal.setAttribute('id', modalId);
-    modal.querySelector('.appealModalTitle').textContent = `Жалоба №${appeal.id}`;
-    modal.querySelector('.appealModalAuthor').textContent = appeal.authorFullName;
-    modal.querySelector('.appealModalTarget').textContent = appeal.targetFullName;
-    modal.querySelector('.appealModalTopic').textContent = appeal.topic;
+    modal.querySelector('.appealModalTitle').textContent = `Жалоба №${appeal.numb}`;
+    modal.querySelector('.appealModalAuthor').textContent = appeal.author;
+    modal.querySelector('.appealModalTarget').textContent = appeal.studentRep;
+    modal.querySelector('.appealModalTopic').textContent = appeal.theme;
     modal.querySelector('.appealModalDescription').textContent = appeal.description;
 
     const reviewedBtn = card.querySelectorAll('.appealBtn')[1];
-        reviewedBtn.addEventListener('click', () => {
-        console.log(`Жалоба ${appeal.id} отмечена как рассмотренная`);
+    reviewedBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+
+      if (!confirm(`Подтвердите удаление жалобы №${appeal.numb}?`)) return;
+
+      api.fetchWithAuth(`/Reports/${appeal.id}`, {
+        method: 'DELETE',
+        headers: {
+          accept: 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('jwtToken')}`
+        }
+      })
+      .then(response => {
+        if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
+        alert('Заявка успешно отмечена как рассмотренная.');
+        card.remove();
+      })
+      .catch(err => {
+        console.error('Ошибка при удалении жалобы:', err);
+        alert('Не удалось отметить заявку как рассмотренную.');
+      });
     });
 
     card.setAttribute('data-solution-id', appeal.solutionId || appeal.id);
@@ -131,36 +147,45 @@ function renderAppeals(appeals) {
     }
     });
 
-
     container.appendChild(clone);
   });
 }
 
-//это я тестил
-async function loadAppeals() {
+// использовал для тестирования
+
+function loadAppeals() {
   const appeals = [
-    {
-      id: 1123123,
-      authorFullName: 'Иванов Иван',
-      targetFullName: 'Петров Петр',
-      topic: 'Лабораторная №1',
-      description: 'Я считаю, что оценка была выставлена без учёта критериев. Прошу пересмотреть.'
-    },
-    {
-      id: 21231231,
-      authorFullName: 'Сидорова Анна',
-      targetFullName: 'Кузнецов Алексей',
-      topic: 'Лабораторная №4',
-      description: 'Преподаватель позволил себе некорректные высказывания во время консультации.'
-    },
-    {
-      id: 3123123,
-      authorFullName: 'Марков Илья',
-      targetFullName: 'Программа курса',
-      topic: 'Лабораторная №10',
-      description: 'Задания не соответствуют лекциям, неясные формулировки.'
-    }
-  ];
+  {
+    id: "1a2b3c4d-1111-2222-3333-444455556666",
+    numb: 123,
+    description: "Преподаватель не дал возможности исправить замечания по лабораторной.",
+    theme: "Пересмотр оценки по лабораторной №3",
+    studentRep: "Михаил Егоров",
+    author: "Егоров Михаил",
+    createTime: "2025-06-25T10:15:00.000Z",
+    solutionId: "1a2b3c4d-aaaa-bbbb-cccc-ddddeeeeffff"
+  },
+  {
+    id: "7e8f9a0b-7777-8888-9999-000011112222",
+    numb: 124,
+    description: "Преподаватель опоздал на консультацию и не предоставил обратную связь.",
+    theme: "Жалоба на организацию консультации",
+    studentRep: "Анна Лукина",
+    author: "Лукина Анна",
+    createTime: "2025-06-26T14:30:00.000Z",
+    solutionId: "7e8f9a0b-xxxx-yyyy-zzzz-111122223333"
+  },
+  {
+    id: "abcde123-aaaa-bbbb-cccc-ddddeeeeffff",
+    numb: 125,
+    description: "Система неправильно засчитала тесты в финальном проекте.",
+    theme: "Ошибка автоматической проверки",
+    studentRep: "Дмитрий Петров",
+    author: "Петров Дмитрий",
+    createTime: "2025-06-27T09:45:00.000Z",
+    solutionId: "abcde123-eeee-ffff-gggg-hhhhiiiijjjj"
+  }
+];
 
   renderAppeals(appeals);
 }
