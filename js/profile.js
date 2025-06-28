@@ -24,7 +24,7 @@ logoutButton.addEventListener('click', function (event) {
     event.preventDefault();
     const token = localStorage.getItem('jwtToken');
 
-    fetch('https://a34448-3f82.u.d-f.pw/api/User/logout', {
+    fetch('https://a34552-f8ac.v.d-f.pw/api/User/logout', {
         method: 'POST',
         headers: {
             accept: '*/*',
@@ -72,7 +72,7 @@ function getProfile() {
         return;
     }
 
-    fetch('https://a34448-3f82.u.d-f.pw/api/User/profile', {
+    fetch('https://a34552-f8ac.v.d-f.pw/api/User/profile', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ function updateProfile() {
         lastName: inputLastName.value.trim(),
     };
 
-    fetch('https://a34448-3f82.u.d-f.pw/api/User/profile', {
+    fetch('https://a34552-f8ac.v.d-f.pw/api/User/profile', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',

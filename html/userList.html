@@ -70,6 +70,44 @@
                             </div>
                         </div>
                     </template>
+
+                    <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content p-3">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="userModalLabel">Оценки пользователя</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                        <th>Задание</th>
+                                        <th>Оценка</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gradesTableBody"></tbody>
+                                    <tfoot>
+                                        <tr>
+                                        <th>Итого</th>
+                                        <th id="totalGrade"></th>
+                                        </tr>
+                                    </tfoot>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <template id="gradeRowTemplate">
+                        <tr>
+                            <td class="assignmentName"></td>
+                            <td class="gradeCell text-primary" style="cursor:pointer;"></td>
+                        </tr>
+                    </template>
                 </div>
             </div>
         </div>

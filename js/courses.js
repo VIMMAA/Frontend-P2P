@@ -24,7 +24,7 @@ logoutButton.addEventListener('click', function (event) {
     event.preventDefault();
     const token = localStorage.getItem('jwtToken');
 
-    fetch('https://a34448-3f82.u.d-f.pw/api/User/logout', {
+    fetch('https://a34552-f8ac.v.d-f.pw/api/User/logout', {
         method: 'POST',
         headers: {
             accept: '*/*',
@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         try {
-            const response = await fetch("https://a34448-3f82.u.d-f.pw/api/Course", {
+            const response = await fetch("https://a34552-f8ac.v.d-f.pw/api/Course", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const response = await fetch(`https://a34448-3f82.u.d-f.pw/api/Course/register?code=${encodeURIComponent(code)}`, {
+            const response = await fetch(`https://a34552-f8ac.v.d-f.pw/api/Course/register?code=${encodeURIComponent(code)}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -245,7 +245,7 @@ function loadCourses() {
         return;
     }
 
-    fetch('https://a34448-3f82.u.d-f.pw/api/Course/list', {
+    fetch('https://a34552-f8ac.v.d-f.pw/api/Course/list', {
         method: 'GET',
         headers: {
         accept: '*/*',
@@ -285,7 +285,7 @@ async function deleteCourse(courseId) {
   if (!token) return;
 
   try {
-    const response = await fetch(`https://a34448-3f82.u.d-f.pw/api/Course/${courseId}`, {
+    const response = await fetch(`https://a34552-f8ac.v.d-f.pw/api/Course/${courseId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -306,7 +306,7 @@ async function leaveCourse(courseId) {
   if (!token) return;
 
   try {
-    const response = await fetch(`https://a34448-3f82.u.d-f.pw/api/Course/leave/${courseId}`, {
+    const response = await fetch(`https://a34552-f8ac.v.d-f.pw/api/Course/leave/${courseId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`

@@ -1,3 +1,6 @@
+localStorage.removeItem('jwtToken');
+localStorage.removeItem('userEmail');
+
 const userEmail = localStorage.getItem('userEmail');
 const token = localStorage.getItem('jwtToken');
 
@@ -44,7 +47,7 @@ document.querySelector('form').addEventListener('submit', function (event) {
             email: email,
         };
 
-        fetch('https://a34448-3f82.u.d-f.pw/api/User/login', {
+        fetch('https://a34552-f8ac.v.d-f.pw/api/User/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

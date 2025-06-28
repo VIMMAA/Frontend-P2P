@@ -105,7 +105,7 @@ document.getElementById('registrationForm').addEventListener('submit', function(
             birthday: birthDate,
         };
 
-        const registrationUrl = 'https://a34448-3f82.u.d-f.pw/api/User/register';
+        const registrationUrl = 'https://a34552-f8ac.v.d-f.pw/api/User/register';
         
         fetch(registrationUrl, {
             method: 'POST',
