@@ -1,9 +1,12 @@
+import {ApiClient} from "./requests/ApiClient.js";
+
 const userEmail = localStorage.getItem('userEmail');
 const token = localStorage.getItem('jwtToken');
 
 const authElements = document.querySelectorAll('.auth-only');
 const guestElements = document.querySelectorAll('.guest-only');
 const emailElement = document.getElementById('userEmail');
+const api = new ApiClient()
 
 function updateNavbar() {
     if (token && userEmail) {
@@ -24,7 +27,7 @@ logoutButton.addEventListener('click', function (event) {
     event.preventDefault();
     const token = localStorage.getItem('jwtToken');
 
-    fetch('https://a34448-3f82.u.d-f.pw/api/User/logout', {
+    api.fetchWithAuth('/User/logout', {
         method: 'POST',
         headers: {
             accept: '*/*',
@@ -72,7 +75,7 @@ function getProfile() {
         return;
     }
 
-    fetch('https://a34448-3f82.u.d-f.pw/api/User/profile', {
+    api.fetchWithAuth('/User/profile', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -148,7 +151,7 @@ function updateProfile() {
         lastName: inputLastName.value.trim(),
     };
 
-    fetch('https://a34448-3f82.u.d-f.pw/api/User/profile', {
+    api.fetchWithAuth('/User/profile', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',

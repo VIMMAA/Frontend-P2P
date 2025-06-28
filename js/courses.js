@@ -1,3 +1,5 @@
+import {ApiClient} from "./requests/ApiClient.js";
+
 const userEmail = localStorage.getItem('userEmail');
 const token = localStorage.getItem('jwtToken');
 
@@ -19,12 +21,13 @@ function updateNavbar() {
 updateNavbar();
 
 const logoutButton = document.getElementById('logoutButton');
+const api = new ApiClient();
 
 logoutButton.addEventListener('click', function (event) {
     event.preventDefault();
     const token = localStorage.getItem('jwtToken');
 
-    fetch('https://a34448-3f82.u.d-f.pw/api/User/logout', {
+    api.fetchWithAuth(`/User/logout`, {
         method: 'POST',
         headers: {
             accept: '*/*',
@@ -81,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         try {
-            const response = await fetch("https://a34448-3f82.u.d-f.pw/api/Course", {
+            const response = await api.fetchWithAuth(`/Course`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -130,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const response = await fetch(`https://a34448-3f82.u.d-f.pw/api/Course/register?code=${encodeURIComponent(code)}`, {
+            const response = await api.fetchWithAuth(`/Course/register?code=${encodeURIComponent(code)}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -208,7 +211,7 @@ function renderCourses(courses) {
         const courseBox = clone.querySelector('.courseBox');
         courseBox.style.cursor = 'pointer';
         courseBox.addEventListener('click', () => {
-            window.location.href = `course.html?id=${course.courseId}`; //добавить переход на страницу с информацией о курсе
+            window.location.href = `feed.html?id=${course.courseId}`; //добавить переход на страницу с информацией о курсе
         });
 
         const deleteBtn = clone.querySelector('.btn-delete');
@@ -245,7 +248,7 @@ function loadCourses() {
         return;
     }
 
-    fetch('https://a34448-3f82.u.d-f.pw/api/Course/list', {
+    api.fetchWithAuth(`/Course/list`, {
         method: 'GET',
         headers: {
         accept: '*/*',
@@ -285,7 +288,7 @@ async function deleteCourse(courseId) {
   if (!token) return;
 
   try {
-    const response = await fetch(`https://a34448-3f82.u.d-f.pw/api/Course/${courseId}`, {
+    const response = await api.fetchWithAuth(`/Course/${courseId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -306,7 +309,7 @@ async function leaveCourse(courseId) {
   if (!token) return;
 
   try {
-    const response = await fetch(`https://a34448-3f82.u.d-f.pw/api/Course/leave/${courseId}`, {
+    const response = await api.fetchWithAuth(`/Course/leave/${courseId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`

@@ -1,3 +1,5 @@
+import {ApiClient} from "./requests/ApiClient.js";
+
 localStorage.removeItem('jwtToken');
 localStorage.removeItem('userEmail');
 
@@ -7,6 +9,7 @@ const token = localStorage.getItem('jwtToken');
 const authElements = document.querySelectorAll('.auth-only');
 const guestElements = document.querySelectorAll('.guest-only');
 const emailElement = document.getElementById('userEmail');
+const api = new ApiClient()
 
 function updateNavbar() {
     if (token && userEmail) {
@@ -47,7 +50,7 @@ document.querySelector('form').addEventListener('submit', function (event) {
             email: email,
         };
 
-        fetch('https://a34448-3f82.u.d-f.pw/api/User/login', {
+        api.fetchWithAuth(`/User/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -66,6 +69,7 @@ document.querySelector('form').addEventListener('submit', function (event) {
 
                     localStorage.setItem('jwtToken', data.token);
                     localStorage.setItem('userEmail', email);
+                    localStorage.setItem('userPassword', password);
                     window.location.href = 'courses.html';
                 }
             })

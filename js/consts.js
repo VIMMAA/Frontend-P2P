@@ -1,0 +1,1 @@
+export const host = "https://a34552-f8ac.v.d-f.pw"

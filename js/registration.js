@@ -1,5 +1,9 @@
+import {ApiClient} from "./requests/ApiClient.js";
+
 localStorage.removeItem('jwtToken');
 localStorage.removeItem('userEmail');
+
+const api = new ApiClient()
 
 document.addEventListener('DOMContentLoaded', function () {
     const userEmail = localStorage.getItem('userEmail');
@@ -105,9 +109,7 @@ document.getElementById('registrationForm').addEventListener('submit', function(
             birthday: birthDate,
         };
 
-        const registrationUrl = 'https://a34448-3f82.u.d-f.pw/api/User/register';
-        
-        fetch(registrationUrl, {
+        api.fetchWithAuth(`/User/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -124,6 +126,7 @@ document.getElementById('registrationForm').addEventListener('submit', function(
             if (data.token) {
                 localStorage.setItem('jwtToken', data.token);
                 localStorage.setItem('userEmail', email);
+                localStorage.setItem('userPassword', password);
                 alert('Регистрация прошла успешно!');
                 window.location.href = 'courses.html';
             }
