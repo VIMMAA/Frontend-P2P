@@ -263,7 +263,7 @@
                                 <ul id="attachedFiles" class="list-unstyled">
                                     <!-- файлы вставляются сюда -->
                                 </ul>
-                                <button class="btn btn-sm btn-outline-primary mt-2" onclick="downloadAll()">Скачать
+                                <button class="btn btn-sm btn-outline-primary mt-2" id="downloadAll">Скачать
                                     все
                                 </button>
                             </div>
@@ -305,8 +305,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <strong>Итог: <span id="averageGrade">-</span></strong>
-                            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#complaintModal">Жалоба
+                            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" id="appealBtn">Жалоба
                             </button>
                         </div>
                     </div>

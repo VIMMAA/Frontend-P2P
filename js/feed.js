@@ -597,7 +597,9 @@ function renderPost(title, description, dateString, author, initialCommentCount 
             solutionModal.show()
             await taskModal.initModalHandlers("solutionModal")
         } else {
-            //const taskTeacherModal = newTaskSolution(id)
+            const taskModal = new TaskSolution(id)
+            solutionModal.show()
+            await taskModal.initModalHandlers("solutionModal")
             postModal.show();
         }
     })

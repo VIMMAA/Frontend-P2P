@@ -334,10 +334,75 @@ export class TaskSolution {
                 await this.sendSolution();
             });
         }
+
+        const downloadAllBtn = document.getElementById("downloadAllBtn");
+        if(downloadAllBtn) {
+            downloadAllBtn.addEventListener("click", async () => {
+                await this.downloadAll();
+            })
+        }
+
+        const appealBtn = document.getElementById("appealBtn");
+        if (appealBtn) {
+            appealBtn.addEventListener("click", async () => {
+                await this.postAppeal();
+            })
+        }
+    }
+
+    async postAppeal (){
+        try {
+
+        } catch (e) {
+
+        }
+    }
+
+    async downloadAll() {
+        try {
+            const response = await this.api.fetchWithAuth(`/Task/${this.taskId}/materialWork`);
+            if (!response.ok) {
+                throw new Error("Ошибка при получении данных: " + response.statusText);
+            }
+
+            const data = await response.json();
+            const files = data.attachedFiles || [];
+
+            if (files.length === 0) {
+                alert("Нет прикреплённых файлов.");
+                return;
+            }
+
+            files.forEach(file => {
+                // Преобразуем base64 в Blob и скачиваем
+                const byteCharacters = atob(file.data);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray]);
+
+                // Создаем ссылку и кликаем по ней
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = file.name || 'downloaded-file';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        } catch (error) {
+            console.error("Ошибка при скачивании файлов:", error);
+            alert("Не удалось скачать файлы: " + error.message);
+        }
     }
 }
+
+
 
 function getCourseIdFromURL() {
     const params = new URLSearchParams(window.location.search);
     return params.get("id");
 }
+
+
