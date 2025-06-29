@@ -21,6 +21,129 @@
 
 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#solutionModal">Открыть решение</button>
 
+<div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="postModalLabel">Создать пост</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"
+                id="closePostBtn"></button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!--                <div id="modalLoader" class="d-flex justify-content-center align-items-center" style="height: 100%; display: none;">-->
+        <!--                    <div class="spinner-border text-primary" role="status">-->
+        <!--                        <span class="visually-hidden">Загрузка...</span>-->
+        <!--                    </div>-->
+        <!--                </div>-->
+
+        <div class="row" id="modalRow">
+          <!-- Левая часть -->
+          <div class="col-md-9 pe-md-4 border-end" id="leftPartModal">
+            <form id="leftPartForm">
+              <input type="hidden" id="postType">
+              <div class="mb-3">
+                <input type="text" class="form-control" id="postTitle" placeholder="Введите тему">
+              </div>
+              <div class="mb-3">
+                                <textarea class="form-control" id="postDescription" rows="10" maxlength="1000"
+                                          placeholder="Введите описание"></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Прикрепленные файлы</label>
+                <button type="button" class="btn btn-outline-primary" id="attachFilesBtn">Прикрепить
+                </button>
+                <input type="file" id="postFiles" multiple accept="*/*" style="display: none;">
+                <div id="attachedFilesList" class="mt-2"></div>
+              </div>
+            </form>
+          </div>
+          <!-- Правая часть -->
+          <div class="col-md-3 ps-md-4" id="rightPartModal">
+            <form id="rightPartForm">
+
+              <div class="mb-3 d-flex align-items-center">
+                <span class="me-2">P2P-оценивание</span>
+                <div class="form-check form-switch">
+                  <input type="checkbox" class="form-check-input" id="peerReviewToggle"/>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <input
+                        type="number"
+                        min="1" step="1"
+                        class="form-control"
+                        id="reviewPackageSize"
+                        placeholder="Введите размер пакета проверки"
+                        disabled
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="penaltyInput" class="mb-2">Штраф за пропуск проверки</label>
+                <input
+                        type="number"
+                        class="form-control"
+                        id="penaltyInput"
+                        min="0" max="100" step="0.01"
+                        placeholder="0.00 - 1.00"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="deadlineInput" class="mb-2">Срок сдачи</label>
+                <input
+                        type="datetime-local"
+                        class="form-control"
+                        id="deadlineInput"
+                        onkeydown="return false;"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="pointsInput" class="mb-2">Баллы</label>
+                <input
+                        type="number"
+                        class="form-control"
+                        id="pointsInput"
+                        min="0" max="100" step="1"
+                        placeholder="0–100"
+                        disabled
+                />
+              </div>
+
+              <div class="mb-2">
+                <label>Критерии оценивания</label>
+              </div>
+
+              <div class="dropdown mb-2">
+                <button
+                        class="btn btn-secondary dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                >
+                  Добавить критерий
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#" id="addNewCriterion">Добавить критерий</a>
+                  </li>
+                  <!--<li><a class="dropdown-item" href="#" id="selectExistingCriteria">Выбрать
+                      существующий</a></li>-->
+                </ul>
+              </div>
+              <div id="criteriaList"></div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer border-top d-flex justify-content-between">
+        <button type="button" class="btn btn-outline-danger" id="deletePostBtn">Удалить</button>
+        <button type="button" class="btn btn-primary ms-auto" id="publishPostBtn" disabled>Опубликовать</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Модальное окно -->
 <div class="modal fade" id="solutionModal" tabindex="-1" aria-labelledby="solutionModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">

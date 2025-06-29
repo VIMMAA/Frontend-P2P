@@ -251,31 +251,45 @@ async function deletePost(id) {
 }
 
 async function savePost() {
-    const courseId = getSavedCriteria();
+    const id = currentPostId
+
+    const now = new Date();
+    const dateString = now.toLocaleDateString("ru-RU");
+
+    const localDate = new Date(deadlineInput.value);
+    if((deadlineInput.value === "" || localDate <= now) && postType) {
+        alert("Установите валидный дедлайн проверки")
+        return;
+    }
 
     let requestBody
     if (postType) {
         requestBody = {
-            name: postTitle.value,
-            deadline: "",
-            check: "P2P",
-            description: postDescription.value,
-            penalty: parseInt(penaltyInput.value) || undefined,
-            solutionsToCheckN: parseInt(reviewPackageSize.value) || undefined,
-            isP2P: peerReviewToggle.checked
-
+            materialTaskWork: {
+                name: postTitle.value,
+                deadline: localDate.toISOString(),
+                description: postDescription.value,
+                penalty: parseInt(penaltyInput.value) || undefined,
+                solutionsToCheckN: parseInt(reviewPackageSize.value) || undefined,
+                isP2P: peerReviewToggle.checked
+            },
+            criteriaAssignments: chosenCriteria,
+            files: attachedFiles
         };
     } else {
         requestBody = {
-            name: postTitle.value,
-            description: postDescription.value,
+            materialReadCreate: {
+                name: postTitle.value,
+                description: postDescription.value,
+            },
+            files: attachedFiles
         };
     }
 
     try {
         let materialName = await getMaterialName(id);
 
-        const response = await api.fetchWithAuth(`/Task/${courseId}/${materialName}`, {
+        const response = await api.fetchWithAuth(`/Task/${id}/${materialName}`, {
             method: 'PUT',
             body: JSON.stringify(requestBody)
         });
@@ -291,7 +305,7 @@ async function savePost() {
 
         const responseData = await response.json();
         const newPost = renderPost(postTitle.value, postDescription.value, dateString, userEmail, 0, responseData.id);
-        //TODO внести изменения в пост
+        //TODO внести изменения в карточку поста
 
         postModal.hide();
 
@@ -532,8 +546,10 @@ function renderPost(title, description, dateString, author, initialCommentCount 
 
         if (await getPostType(api, id)) {
             showRightPartModal()
+            postType = 1
         } else {
             hideRightPartModal()
+            postType = 0
         }
         prevEditMode = editMode
         editMode = true
