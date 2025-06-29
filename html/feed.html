@@ -82,6 +82,12 @@
                         id="closePostBtn"></button>
             </div>
             <div class="modal-body" id="modalBody">
+<!--                <div id="modalLoader" class="d-flex justify-content-center align-items-center" style="height: 100%; display: none;">-->
+<!--                    <div class="spinner-border text-primary" role="status">-->
+<!--                        <span class="visually-hidden">Загрузка...</span>-->
+<!--                    </div>-->
+<!--                </div>-->
+
                 <div class="row" id="modalRow">
                     <!-- Левая часть -->
                     <div class="col-md-9 pe-md-4 border-end" id="leftPartModal">
@@ -182,8 +188,9 @@
 
                 </div>
             </div>
-            <div class="modal-footer border-top">
-                <button type="button" class="btn btn-primary" id="publishPostBtn" disabled>Опубликовать</button>
+            <div class="modal-footer border-top d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-danger" id="deletePostBtn">Удалить</button>
+                <button type="button" class="btn btn-primary ms-auto" id="publishPostBtn" disabled>Опубликовать</button>
             </div>
         </div>
     </div>
@@ -239,6 +246,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="/js/feed.js"></script>
 <script type="module" src="/js/validateRightForm.js"></script>
+<script type="module" src="/js/auxFunctions.js"></script>
 <script type="module" src="/js/requests/ApiClient.js"></script>
 <script type="module" src="/js/consts.js"></script>
 </body>

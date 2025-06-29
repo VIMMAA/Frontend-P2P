@@ -1,31 +1,39 @@
 import {validateRightForm} from './validateRightForm.js';
 import {ApiClient} from './requests/ApiClient.js';
+import {formatDate, getPostType} from "./auxFunctions.js";
 
 document.addEventListener("DOMContentLoaded", initializePage);
 
 const postModal = new bootstrap.Modal(document.getElementById("postModal"));
+
+
+const postModalLabel = document.getElementById("postModalLabel");
 const addCriterionModal = new bootstrap.Modal(document.getElementById('addCriterionModal'));
 const selectCriterionModal = new bootstrap.Modal(document.getElementById('selectCriterionModal'));
+const modalFooter = document.querySelector(".modal-footer");
 
 const leftPartForm = document.getElementById("leftPartForm");
 const rightPartForm = document.getElementById("rightPartForm");
 const leftPartModal = document.getElementById("leftPartModal");
 const publishPostBtn = document.getElementById("publishPostBtn");
+const deletePostBtn = document.getElementById("deletePostBtn");
 const closePostBtn = document.getElementById("closePostBtn");
-const postTitle = document.getElementById("postTitle");
-const postDescription = document.getElementById("postDescription");
+let postTitle = document.getElementById("postTitle");
+let postDescription = document.getElementById("postDescription");
 const postFiles = document.getElementById("postFiles");
 const postsContainer = document.getElementById("postsContainer");
 const attachedFilesList = document.getElementById("attachedFilesList");
 const attachFilesBtn = document.getElementById("attachFilesBtn");
-const peerReviewToggle = document.getElementById("peerReviewToggle");
-const reviewPackageSize = document.getElementById("reviewPackageSize");
-const penaltyInput = document.getElementById("penaltyInput");
-const deadlineInput = document.getElementById("deadlineInput");
-const pointsInput = document.getElementById("pointsInput");
+let peerReviewToggle = document.getElementById("peerReviewToggle");
+let reviewPackageSize = document.getElementById("reviewPackageSize");
+let penaltyInput = document.getElementById("penaltyInput");
+let deadlineInput = document.getElementById("deadlineInput");
+let pointsInput = document.getElementById("pointsInput");
 let attachedFiles = [];
 let chosenCriteria = [];
-let chosenPost
+let postType
+let editMode = false;
+let prevEditMode = true;
 
 const saveBtn = document.getElementById('saveCriterionBtn');
 const criteriaListEl = document.getElementById('criteriaList');
@@ -106,7 +114,7 @@ async function loadCourseData() {
             const author = task.authorId;
             const date = task.createTime;
 
-            const newPost = renderPost(taskTitle, taskDescription, date, author);
+            const newPost = renderPost(taskTitle, taskDescription, date, author, 0, task.id);
             postsContainer.prepend(newPost);
         });
     } catch (error) {
@@ -118,24 +126,6 @@ async function loadCourseData() {
 function getCourseIdFromURL() {
     const params = new URLSearchParams(window.location.search);
     return params.get("id");
-}
-
-function renderTasks(course) {
-    const tasksContainer = document.getElementById("tasksContainer");
-    tasksContainer.innerHTML = "";
-
-    course.tasks.forEach(task => {
-        const taskEl = document.createElement("div");
-        taskEl.className = "card mb-2";
-        taskEl.innerHTML = `
-            <div class="card-body">
-                <h5 class="card-title">${task.name}</h5>
-                <p class="card-text">Тема: ${task.topic}</p>
-                <p class="text-muted">Создано: ${new Date(task.createTime).toLocaleString()}</p>
-            </div>
-        `;
-        tasksContainer.appendChild(taskEl);
-    });
 }
 
 validateRightForm(rightPartForm);
@@ -205,6 +195,160 @@ function clearModal() {
     chosenCriteria = []
 }
 
+
+function setListenerToPublishPostButton() {
+
+    if(prevEditMode !== editMode) {
+        if (editMode) {
+            publishPostBtn.textContent = "Сохранить";
+            postModalLabel.textContent = "Редактировать пост"
+            deletePostBtn.style.display = '';
+            deletePostBtn.disabled = false;
+
+            publishPostBtn.removeEventListener('click', publishPost);
+            publishPostBtn.addEventListener("click", savePost)
+        } else {
+            publishPostBtn.textContent = "Опубликовать";
+            postModalLabel.textContent = "Создать пост"
+            deletePostBtn.style.display = 'none';
+            deletePostBtn.disabled = true;
+
+            publishPostBtn.removeEventListener('click', savePost);
+            publishPostBtn.addEventListener("click", publishPost)
+        }
+    }
+}
+
+async function getMaterialName(id) {
+    const postType = await getPostType(api, id);
+    if (postType) return "MaterialWork"
+    else return "MaterialRead"
+}
+
+async function deletePost() {
+    let materialName
+    // TODO delete request
+}
+
+async function savePost() {
+    const courseId = getSavedCriteria();
+
+    let requestBody
+    if (postType) {
+        requestBody = {
+            name: postTitle.value,
+            deadline: "",
+            check: "P2P",
+            description: postDescription.value,
+            penalty: parseInt(penaltyInput.value) || undefined,
+            solutionsToCheckN: parseInt(reviewPackageSize.value) || undefined,
+            isP2P: peerReviewToggle.checked
+
+        };
+    } else {
+        requestBody = {
+            name: postTitle.value,
+            description: postDescription.value,
+        };
+    }
+
+    try {
+        let materialName = await getMaterialName(id);
+
+        const response = await api.fetchWithAuth(`/Task/${courseId}/${materialName}`, {
+            method: 'PUT',
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Ошибка при отправке:", errorData);
+            alert("Ошибка при отправке: " + errorData.message || response.statusText);
+            return;
+        }
+
+        console.log("Успешно отправлено!");
+
+        const responseData = await response.json();
+        const newPost = renderPost(postTitle.value, postDescription.value, dateString, userEmail, 0, responseData.id);
+        //TODO внести изменения в пост
+
+        postModal.hide();
+
+    } catch (err) {
+        console.error("Ошибка при публикации:", err);
+        alert("Не удалось отправить данные.");
+    }
+}
+
+async function publishPost() {
+    const now = new Date();
+    const dateString = now.toLocaleDateString("ru-RU");
+
+    const localDate = new Date(deadlineInput.value);
+    if(deadlineInput.value === "" || localDate <= now) {
+        alert("Установите валидный дедлайн проверки")
+        return;
+    }
+
+    const courseId = getCourseIdFromURL();
+
+    let materialName
+    let requestBody
+    if (postType) {
+        materialName = 'materialWork'
+        requestBody = {
+            materialTaskWork: {
+                name: postTitle.value,
+                deadline: localDate.toISOString(),
+                description: postDescription.value,
+                penalty: parseInt(penaltyInput.value) || undefined,
+                solutionsToCheckN: parseInt(reviewPackageSize.value) || undefined,
+                isP2P: peerReviewToggle.checked
+            },
+            criteriaAssignments: chosenCriteria,
+            files: attachedFiles
+        };
+    } else {
+        materialName = 'materialRead'
+        requestBody = {
+            materialReadCreate: {
+                name: postTitle.value,
+                description: postDescription.value,
+            },
+            files: attachedFiles
+        };
+    }
+
+    try {
+
+        const response = await api.fetchWithAuth(`/Task/${courseId}/${materialName}`, {
+            method: 'POST',
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Ошибка при отправке:", errorData);
+            alert("Ошибка при отправке: " + errorData.message || response.statusText);
+            return;
+        }
+
+        console.log("Успешно отправлено!");
+
+        const responseData = await response.json();
+        const newPost = renderPost(postTitle.value, postDescription.value, dateString, userEmail, 0, responseData.id);
+
+        postsContainer.prepend(newPost);
+        postModal.hide();
+
+    } catch (err) {
+        console.error("Ошибка при публикации:", err);
+        alert("Не удалось отправить данные.");
+    }
+
+}
+
 function initializePage() {
 
     const courseId = getCourseIdFromURL();
@@ -228,94 +372,32 @@ function initializePage() {
     document.querySelectorAll('.create-post-option').forEach(item => {
         item.addEventListener('click', function (e) {
             e.preventDefault(); // чтобы не прыгал вверх при href="#"
+            prevEditMode = editMode
+            editMode = false;
+            setListenerToPublishPostButton();
             const value = this.dataset.value;
+
             if (value === "1") {
                 editingPost = null;
                 clearModal();
                 validateForm();
+                showRightPartModal()
 
-                rightPartForm.style.display = '';
-                rightPartForm.disabled = false;
-
-                leftPartModal.classList.add('border-end');
-                chosenPost = 1
+                postType = 1
 
                 postModal.show();
             } else {
                 editingPost = null;
                 clearModal();
                 validateForm();
-                rightPartForm.style.display = 'none';
-                rightPartForm.disabled = true;
-
-                leftPartModal.classList.remove('border-end');
-                chosenPost = 0
+                hideRightPartModal()
 
                 postModal.show();
             }
         });
     });
 
-
-    publishPostBtn.addEventListener("click", async function () {
-        const now = new Date();
-        const dateString = now.toLocaleDateString("ru-RU");
-
-        const localDate = new Date(deadlineInput.value);
-
-        let materialName
-        let requestBody
-        if(chosenPost) {
-            materialName = 'materialWork'
-            requestBody = {
-                materialTaskWork: {
-                    name: postTitle.value,
-                    deadline: localDate.toISOString(),
-                    check: "P2P",
-                    description: postDescription.value,
-                    penalty: parseInt(penaltyInput.value) || 0,
-                    solutionsToCheckN: parseInt(reviewPackageSize.value) || 0,
-                    isP2P: peerReviewToggle.checked
-                },
-                criteriaAssignments: chosenCriteria
-            };
-        }
-        else {
-            materialName = 'materialRead'
-            requestBody = {
-                name: postTitle.value,
-                description: postDescription.value,
-            };
-        }
-
-        try {
-
-            const response = await api.fetchWithAuth(`/Task/${courseId}/${materialName}`, {
-                method: 'POST',
-                body: JSON.stringify(requestBody)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("Ошибка при отправке:", errorData);
-                alert("Ошибка при отправке: " + errorData.message || response.statusText);
-                return;
-            }
-
-            console.log("Успешно отправлено!");
-
-            const responseData = await response.json();
-            const newPost = renderPost(postTitle.value, postDescription.value, dateString, userEmail);
-            newPost.setAttribute('id', `${responseData.id}`);
-
-            postsContainer.prepend(newPost);
-            postModal.hide();
-
-        } catch (err) {
-            console.error("Ошибка при публикации:", err);
-            alert("Не удалось отправить данные.");
-        }
-    });
+    setListenerToPublishPostButton();
 
     closePostBtn.addEventListener("click", function () {
         clearModal()
@@ -363,18 +445,36 @@ function initializePage() {
     });
 }
 
-function renderPost(title, description, dateString, author, initialCommentCount = 0) {
+function hideRightPartModal() {
+    rightPartForm.style.display = 'none';
+    rightPartForm.disabled = true;
+
+    leftPartModal.classList.remove('border-end');
+    postType = 0
+}
+
+function showRightPartModal() {
+    rightPartForm.style.display = '';
+    rightPartForm.disabled = false;
+
+    leftPartModal.classList.add('border-end');
+}
+
+function renderPost(title, description, dateString, author, initialCommentCount = 0, id) {
     const newPost = document.createElement("div");
+    newPost.setAttribute('id', `${id}`);
+
     const ending = getEndingOfTheWord(initialCommentCount);
     newPost.className = "card mb-3";
     newPost.innerHTML = `
       <div class="card-body">
+        <div>
         <div class="d-flex justify-content-between">
           <h5 class="card-title">${title}</h5>
-          <i class="bi bi-pencil-square edit-post" style="cursor:pointer"></i>
+          <button class="bi bi-pencil-square edit-post btn"></button>
         </div>
-        <p class="card-text">${description}</p>
         <p class="text-muted">Автор: ${author} | Дата: ${dateString}</p>
+        </div>
         <hr>
         <p class="comment-count text-secondary">${initialCommentCount} комментари${ending} под постом</p>
         <div class="input-group mt-2">
@@ -387,12 +487,63 @@ function renderPost(title, description, dateString, author, initialCommentCount 
       </div>
     `;
 
+    const editBtn = newPost.children[0].children[0].children[0].children[1]
+    editBtn.addEventListener("click", async function () {
+
+        if (await getPostType(api, id)) {
+            showRightPartModal()
+        } else {
+            hideRightPartModal()
+        }
+        prevEditMode = editMode
+        editMode = true
+        setListenerToPublishPostButton()
+        let materialName = await getMaterialName(id);
+
+        const response = await api.fetchWithAuth(`/Task/${id}/${materialName}`);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Ошибка при отправке:", errorData);
+            alert("Ошибка при отправке: " + errorData.message || response.statusText);
+            return;
+        }
+
+        console.log("Успешно отправлено!");
+
+        const responseData = await response.json();
+
+        fillModal(responseData);
+
+        postModal.show();
+
+    })
+
+    const cardArea = newPost.children[0].children[0]
+    cardArea.addEventListener("click", function (e) {
+        postModal.show();
+    })
+
     return newPost;
 }
 
+function fillModal(post) {
+    postTitle.value = post.name
+    postDescription.value = post.description
+    //TODO реализовать прикрепление файлов
+    //postFiles =
+    //attachedFilesList =
+    peerReviewToggle.checked = post.check === 'P2P'
+    reviewPackageSize.value = post.solutionsToCheckN !== undefined ? post.solutionsToCheckN : ""
+    penaltyInput.value = post.penalty !== undefined ? post.penalty : ""
+    deadlineInput.value = post.deadline !== undefined ? formatDate(post.deadline) : ""
+    pointsInput.value = post.score !== undefined ? post.score : 0
+    //add criteria
+}
+
 function getEndingOfTheWord(initialCommentCount) {
-    if(initialCommentCount % 10 === 1 && initialCommentCount !== 11) return 'й'
-    else if((initialCommentCount % 10 === 2 || initialCommentCount % 10 === 3 || initialCommentCount % 10 === 4)
+    if (initialCommentCount % 10 === 1 && initialCommentCount !== 11) return 'й'
+    else if ((initialCommentCount % 10 === 2 || initialCommentCount % 10 === 3 || initialCommentCount % 10 === 4)
         && initialCommentCount !== 12 && initialCommentCount !== 13 && initialCommentCount !== 14) return 'я'
     else return 'ев'
 }

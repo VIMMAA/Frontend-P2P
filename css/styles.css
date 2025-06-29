@@ -112,3 +112,7 @@ textarea {
 .form-check {
   padding-left: 0 !important;
 }
+
+#deletePostBtn {
+  margin-left: 2em ;
+}
