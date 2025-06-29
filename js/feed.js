@@ -395,13 +395,16 @@ async function publishPost() {
 
 async function initializePage() {
 
-    //const courseId = getCourseIdFromURL();
-
     const response = await api.fetchWithAuth(`/Course/${courseId}/Role`)
     if(!response.ok) {
         throw new Error(`Ошибка сервера: ${response.status}`);
     }
     else userRole = await response.json();
+
+    if(userRole === "Student") {
+        document.getElementById("appeals").style.display = "none";
+        document.getElementById("createPostBtn").style.display = "none";
+    }
 
     loadCourseData(courseId);
 

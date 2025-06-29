@@ -54,39 +54,39 @@ function handleLogout() {
     window.location.href = 'authorization.html';
 }
 
-//const userRole = localStorage.getItem('userRole');
-const userRole = 'teacher'
+const userRole = localStorage.getItem('userRole');
 if (userRole === 'student') {
     window.location.href = 'courses.html';
 }
 
-// async function loadAppeals() {
-//   const token = localStorage.getItem('jwtToken');
+async function loadAppeals() {
+  const token = localStorage.getItem('jwtToken');
 
-//     method: 'GET',
-//     headers: {
-//       accept: 'application/json',
-//       Authorization: `Bearer ${token}`
-//     }
-//   })
-//     .then(response => {
-//       if (!response.ok) {
-//         if (response.status === 401) {
-//           localStorage.removeItem('jwtToken');
-//           window.location.href = 'authorization.html';
-//         } else {
-//           console.warn('Ошибка при получении жалоб:', response.status);
-//         }
-//       }
-//       return response.json();
-//     })
-//     .then(appeals => {
-//       renderAppeals(appeals);
-//     })
-//     .catch(error => {
-//       console.error('Ошибка при загрузке жалоб:', error);
-//     });
-// }
+  api.fetchWithAuth('/Report', {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: `Bearer ${token}`
+    }
+  })
+    .then(response => {
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem('jwtToken');
+          window.location.href = 'authorization.html';
+        } else {
+          console.warn('Ошибка при получении жалоб:', response.status);
+        }
+      }
+      return response.json();
+    })
+    .then(appeals => {
+      renderAppeals(appeals);
+    })
+    .catch(error => {
+      console.error('Ошибка при загрузке жалоб:', error);
+    });
+}
 
 
 function renderAppeals(appeals) {
@@ -151,43 +151,5 @@ function renderAppeals(appeals) {
   });
 }
 
-// использовал для тестирования
-
-function loadAppeals() {
-  const appeals = [
-  {
-    id: "1a2b3c4d-1111-2222-3333-444455556666",
-    numb: 123,
-    description: "Преподаватель не дал возможности исправить замечания по лабораторной.",
-    theme: "Пересмотр оценки по лабораторной №3",
-    studentRep: "Михаил Егоров",
-    author: "Егоров Михаил",
-    createTime: "2025-06-25T10:15:00.000Z",
-    solutionId: "1a2b3c4d-aaaa-bbbb-cccc-ddddeeeeffff"
-  },
-  {
-    id: "7e8f9a0b-7777-8888-9999-000011112222",
-    numb: 124,
-    description: "Преподаватель опоздал на консультацию и не предоставил обратную связь.",
-    theme: "Жалоба на организацию консультации",
-    studentRep: "Анна Лукина",
-    author: "Лукина Анна",
-    createTime: "2025-06-26T14:30:00.000Z",
-    solutionId: "7e8f9a0b-xxxx-yyyy-zzzz-111122223333"
-  },
-  {
-    id: "abcde123-aaaa-bbbb-cccc-ddddeeeeffff",
-    numb: 125,
-    description: "Система неправильно засчитала тесты в финальном проекте.",
-    theme: "Ошибка автоматической проверки",
-    studentRep: "Дмитрий Петров",
-    author: "Петров Дмитрий",
-    createTime: "2025-06-27T09:45:00.000Z",
-    solutionId: "abcde123-eeee-ffff-gggg-hhhhiiiijjjj"
-  }
-];
-
-  renderAppeals(appeals);
-}
 
 loadAppeals();

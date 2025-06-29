@@ -6,6 +6,7 @@ const token = localStorage.getItem('jwtToken');
 const authElements = document.querySelectorAll('.auth-only');
 const guestElements = document.querySelectorAll('.guest-only');
 const emailElement = document.getElementById('userEmail');
+const userRole = localStorage.getItem('userRole');
 
 const api = new ApiClient()
 
@@ -57,7 +58,7 @@ function handleLogout() {
 
 async function loadUsers() {
     const token = localStorage.getItem('jwtToken');
-    const courseId = localStorage.getItem("courseId");
+    const courseId = localStorage.getItem('courseId');
 
     api.fetchWithAuth(`/Course/${courseId}/users`, {
         method: 'GET',
@@ -143,7 +144,7 @@ function createUserCard(template, user) {
     }
 
     const currentUserId = payload.sub || payload.userId || (payload.nameid && payload.nameid[0]);
-    const userRole = 'owner'; //потом получать роль из localStorage
+    const userRole = localStorage.getItem('userRole');
 
         if (userRole === 'owner' || userRole === 'teacher') {
             openUserModal(user.id, user.fullName);
@@ -161,148 +162,150 @@ function createUserCard(template, user) {
   return clone;
 }
 
-// function openUserModal(userId, userFullName) {
-//     const modal = new bootstrap.Modal(document.getElementById('userModal'));
-//     const modalTitle = document.getElementById('userModalLabel');
-//     const gradesTableBody = document.getElementById('gradesTableBody');
-//     const totalGrade = document.getElementById('totalGrade');
-
-//     modalTitle.textContent = `Оценки пользователя: ${userFullName}`;
-//     gradesTableBody.innerHTML = '';
-//     totalGrade.textContent = '';
-
-//     const token = localStorage.getItem('jwtToken');
-
-//     fetch(``, { //добавить ссылку на запрос
-//         method: 'GET',
-//         headers: {
-//         accept: 'application/json',
-//         Authorization: `Bearer ${token}`
-//         }
-//     })
-//     .then(response => response.json())
-//     .then(grades => {
-//         let sum = 0;
-//         grades.forEach(grade => {
-//             const row = document.createElement('tr');
-
-//             const taskCell = document.createElement('td');
-//             taskCell.textContent = grade.TaskName;
-
-//             const scoreCell = document.createElement('td');
-//             scoreCell.textContent = grade.Score;
-//             scoreCell.style.cursor = 'pointer';
-
-//             scoreCell.addEventListener('click', () => {
-//             window.location.href = `solution.html?id=${grade.SolutionId}`;
-//             });
-
-//             scoreCell.addEventListener('mouseover', () => {
-//             scoreCell.style.backgroundColor = '#e6f7ff';
-//             });
-//             scoreCell.addEventListener('mouseout', () => {
-//             scoreCell.style.backgroundColor = '';
-//             });
-
-//             row.appendChild(taskCell);
-//             row.appendChild(scoreCell);
-//             gradesTableBody.appendChild(row);
-
-//             sum += grade.Score;
-//         });
-
-//         totalGrade.textContent = sum;
-//         modal.show();
-//     })
-//     .catch(error => {
-//         console.error('Ошибка при загрузке оценок:', error);
-//     });
-// }
-
 function openUserModal(userId, userFullName) {
     const modal = new bootstrap.Modal(document.getElementById('userModal'));
     const modalTitle = document.getElementById('userModalLabel');
     const gradesTableBody = document.getElementById('gradesTableBody');
     const totalGrade = document.getElementById('totalGrade');
+    const courseId = localStorage.getItem('courseId');
 
-    modalTitle.textContent = `Успеваемость: ${userFullName}`;
+
+    modalTitle.textContent = `Оценки пользователя: ${userFullName}`;
     gradesTableBody.innerHTML = '';
     totalGrade.textContent = '';
 
-    let grades = [];
+    const token = localStorage.getItem('jwtToken');
 
-    //это тестовые данные
-    if (userId === '31fd0c6d-a4c7-4ec7-b8d2-af0c916f2e5f') {
-        grades = [
-        {
-            GradeId: '11111111-1111-1111-1111-111111111111',
-            Score: 95,
-            TaskName: 'Задание 1',
-            SolutionId: 'aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-        },
-        {
-            GradeId: '22222222-2222-2222-2222-222222222222',
-            Score: 88,
-            TaskName: 'Задание 2',
-            SolutionId: 'aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+    api.fetchWithAuth(`Grade/${courseId}/user/${userId} `, {
+        method: 'GET',
+        headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${token}`
         }
-        ];
-    } else if (userId === '58cbbda3-922f-4400-acf9-fecc6b24828e') {
-        grades = [
-        {
-            GradeId: '33333333-3333-3333-3333-333333333333',
-            Score: 75,
-            TaskName: 'Задание A',
-            SolutionId: 'aaaaaaa3-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-        },
-        {
-            GradeId: '44444444-4444-4444-4444-444444444444',
-            Score: 80,
-            TaskName: 'Задание B',
-            SolutionId: 'aaaaaaa4-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-        },
-        {
-            GradeId: '55555555-5555-5555-5555-555555555555',
-            Score: 90,
-            TaskName: 'Задание C',
-            SolutionId: 'aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-        }
-        ];
-    }
+    })
+    .then(response => response.json())
+    .then(grades => {
+        let sum = 0;
+        grades.forEach(grade => {
+            const row = document.createElement('tr');
 
-    let sum = 0;
-    grades.forEach(grade => {
-        const row = document.createElement('tr');
+            const taskCell = document.createElement('td');
+            taskCell.textContent = grade.TaskName;
 
-        const taskCell = document.createElement('td');
-        taskCell.textContent = grade.TaskName;
+            const scoreCell = document.createElement('td');
+            scoreCell.textContent = grade.Score;
+            scoreCell.style.cursor = 'pointer';
 
-        const scoreCell = document.createElement('td');
-        scoreCell.textContent = grade.Score;
-        scoreCell.style.cursor = 'pointer';
-        scoreCell.addEventListener('click', () => {
-            window.location.href = `solution.html?id=${grade.SolutionId}`; //добавить ссылку на решение
-        });
+            scoreCell.addEventListener('click', () => {
+            window.location.href = `solution.html?id=${grade.SolutionId}`;
+            });
 
-
-        scoreCell.addEventListener('mouseover', () => {
+            scoreCell.addEventListener('mouseover', () => {
             scoreCell.style.backgroundColor = '#e6f7ff';
-        });
-        scoreCell.addEventListener('mouseout', () => {
+            });
+            scoreCell.addEventListener('mouseout', () => {
             scoreCell.style.backgroundColor = '';
+            });
+
+            row.appendChild(taskCell);
+            row.appendChild(scoreCell);
+            gradesTableBody.appendChild(row);
+
+            sum += grade.Score;
         });
 
-        row.appendChild(taskCell);
-        row.appendChild(scoreCell);
-        gradesTableBody.appendChild(row);
-
-        sum += grade.Score;
+        totalGrade.textContent = sum;
+        modal.show();
+    })
+    .catch(error => {
+        console.error('Ошибка при загрузке оценок:', error);
     });
-
-
-    totalGrade.textContent = sum;
-    modal.show();
 }
+
+// function openUserModal(userId, userFullName) {
+//     const modal = new bootstrap.Modal(document.getElementById('userModal'));
+//     const modalTitle = document.getElementById('userModalLabel');
+//     const gradesTableBody = document.getElementById('gradesTableBody');
+//     const totalGrade = document.getElementById('totalGrade');
+//
+//     modalTitle.textContent = `Успеваемость: ${userFullName}`;
+//     gradesTableBody.innerHTML = '';
+//     totalGrade.textContent = '';
+//
+//     let grades = [];
+//
+//     //это тестовые данные
+//     if (userId === '31fd0c6d-a4c7-4ec7-b8d2-af0c916f2e5f') {
+//         grades = [
+//         {
+//             GradeId: '11111111-1111-1111-1111-111111111111',
+//             Score: 95,
+//             TaskName: 'Задание 1',
+//             SolutionId: 'aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+//         },
+//         {
+//             GradeId: '22222222-2222-2222-2222-222222222222',
+//             Score: 88,
+//             TaskName: 'Задание 2',
+//             SolutionId: 'aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+//         }
+//         ];
+//     } else if (userId === '58cbbda3-922f-4400-acf9-fecc6b24828e') {
+//         grades = [
+//         {
+//             GradeId: '33333333-3333-3333-3333-333333333333',
+//             Score: 75,
+//             TaskName: 'Задание A',
+//             SolutionId: 'aaaaaaa3-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+//         },
+//         {
+//             GradeId: '44444444-4444-4444-4444-444444444444',
+//             Score: 80,
+//             TaskName: 'Задание B',
+//             SolutionId: 'aaaaaaa4-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+//         },
+//         {
+//             GradeId: '55555555-5555-5555-5555-555555555555',
+//             Score: 90,
+//             TaskName: 'Задание C',
+//             SolutionId: 'aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+//         }
+//         ];
+//     }
+//
+//     let sum = 0;
+//     grades.forEach(grade => {
+//         const row = document.createElement('tr');
+//
+//         const taskCell = document.createElement('td');
+//         taskCell.textContent = grade.TaskName;
+//
+//         const scoreCell = document.createElement('td');
+//         scoreCell.textContent = grade.Score;
+//         scoreCell.style.cursor = 'pointer';
+//         scoreCell.addEventListener('click', () => {
+//             window.location.href = `solution.html?id=${grade.SolutionId}`; //добавить ссылку на решение
+//         });
+//
+//
+//         scoreCell.addEventListener('mouseover', () => {
+//             scoreCell.style.backgroundColor = '#e6f7ff';
+//         });
+//         scoreCell.addEventListener('mouseout', () => {
+//             scoreCell.style.backgroundColor = '';
+//         });
+//
+//         row.appendChild(taskCell);
+//         row.appendChild(scoreCell);
+//         gradesTableBody.appendChild(row);
+//
+//         sum += grade.Score;
+//     });
+//
+//
+//     totalGrade.textContent = sum;
+//     modal.show();
+// }
 
 loadUsers()
 
