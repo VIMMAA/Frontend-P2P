@@ -41,88 +41,93 @@ export function validateRightForm(rightPartForm) {
     });
 
     penaltyInput.addEventListener('input', () => {
-        let value = penaltyInput.value;
+        let value = penaltyInput.value.replace(',', '.'); // Заменяем запятую на точку
 
-        // Удаление всех символов, кроме цифр
-        value = value.replace(/[^\d]/g, '');
+        // Удаляем все символы кроме цифр и точки
+        value = value.replace(/[^\d.]/g, '');
 
-        // Удаление ведущих нулей, кроме случая "0"
-        if (value.length > 1 && value.startsWith('0')) {
-            value = value.replace(/^0+/, '');
+        // Разрешаем только одну точку
+        const parts = value.split('.');
+        if (parts.length > 2) {
+            value = parts[0] + '.' + parts[1];
         }
 
-        // Преобразуем в число
-        let numericValue = parseInt(value, 10);
+        let numericValue = parseFloat(value);
 
         if (isNaN(numericValue)) {
             penaltyInput.value = '';
             return;
         }
 
-        // Ограничиваем от 0 до 100
-        if (numericValue > 100) {
-            numericValue = 100;
-        }
+        // Ограничения: от 0 до 1 и не более двух знаков после точки
+        if (numericValue < 0) numericValue = 0;
+        if (numericValue > 1) numericValue = 1;
 
-        penaltyInput.value = numericValue;
+        // Обрезаем до двух знаков после запятой
+        penaltyInput.value = numericValue.toFixed(2);
     });
 
-// Запрет на ввод минуса с клавиатуры
+// Запрет на минус и лишние точки с клавиатуры
     penaltyInput.addEventListener('keydown', (e) => {
-        if (e.key === '-' || e.key === 'Minus') {
+        if (['-', 'Minus', 'e', 'E'].includes(e.key)) {
+            e.preventDefault();
+        }
+
+        // Запрещаем вторую точку
+        if (e.key === '.' && penaltyInput.value.includes('.')) {
             e.preventDefault();
         }
     });
 
-// Защита от вставки с минусом или ведущими нулями
+// Защита от некорректной вставки
     penaltyInput.addEventListener('paste', (e) => {
-        const pasted = e.clipboardData.getData('text');
-
-        // Блокируем, если содержит минус или начинается с 0 (и не просто "0")
-        if (pasted.includes('-') || (/^0\d/.test(pasted))) {
+        const pasted = e.clipboardData.getData('text').replace(',', '.');
+        const float = parseFloat(pasted);
+        if (isNaN(float) || float < 0 || float > 1) {
             e.preventDefault();
         }
     });
 
-    pointsInput.addEventListener('input', () => {
-        let value = pointsInput.value;
 
-        // Удаление всех символов, кроме цифр
-        value = value.replace(/[^\d]/g, '');
-
-        // Удаление ведущих нулей, кроме случая "0"
-        if (value.length > 1 && value.startsWith('0')) {
-            value = value.replace(/^0+/, '');
-        }
-
-        let numericValue = parseInt(value, 10);
-
-        if (isNaN(numericValue)) {
-            pointsInput.value = '';
-            return;
-        }
-
-        if (numericValue > 100) {
-            numericValue = 100;
-        }
-
-        pointsInput.value = numericValue;
-    });
-
-// Запрет на ввод минуса с клавиатуры
-    pointsInput.addEventListener('keydown', (e) => {
-        if (e.key === '-' || e.key === 'Minus') {
-            e.preventDefault();
-        }
-    });
-
-// Защита от вставки с минусом или ведущими нулями
-    pointsInput.addEventListener('paste', (e) => {
-        const pasted = e.clipboardData.getData('text');
-
-        // Блокируем, если содержит минус или начинается с 0 (и не просто "0")
-        if (pasted.includes('-') || (/^0\d/.test(pasted))) {
-            e.preventDefault();
-        }
-    });
+//     pointsInput.addEventListener('input', () => {
+//         let value = pointsInput.value;
+//
+//         // Удаление всех символов, кроме цифр
+//         value = value.replace(/[^\d]/g, '');
+//
+//         // Удаление ведущих нулей, кроме случая "0"
+//         if (value.length > 1 && value.startsWith('0')) {
+//             value = value.replace(/^0+/, '');
+//         }
+//
+//         let numericValue = parseInt(value, 10);
+//
+//         if (isNaN(numericValue)) {
+//             pointsInput.value = '';
+//             return;
+//         }
+//
+//         if (numericValue > 100) {
+//             numericValue = 100;
+//         }
+//
+//         pointsInput.value = numericValue;
+//     });
+//
+// // Запрет на ввод минуса с клавиатуры
+//     pointsInput.addEventListener('keydown', (e) => {
+//         if (e.key === '-' || e.key === 'Minus') {
+//             e.preventDefault();
+//         }
+//     });
+//
+// // Защита от вставки с минусом или ведущими нулями
+//     pointsInput.addEventListener('paste', (e) => {
+//         const pasted = e.clipboardData.getData('text');
+//
+//         // Блокируем, если содержит минус или начинается с 0 (и не просто "0")
+//         if (pasted.includes('-') || (/^0\d/.test(pasted))) {
+//             e.preventDefault();
+//         }
+//     });
 }

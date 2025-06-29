@@ -137,8 +137,8 @@
                                         type="number"
                                         class="form-control"
                                         id="penaltyInput"
-                                        min="0" max="100" step="1"
-                                        placeholder="0–100%"
+                                        min="0" max="100" step="0.01"
+                                        placeholder="0.00 - 1.00"
                                 />
                             </div>
 
@@ -160,6 +160,7 @@
                                         id="pointsInput"
                                         min="0" max="100" step="1"
                                         placeholder="0–100"
+                                        disabled
                                 />
                             </div>
 
@@ -178,8 +179,8 @@
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="#" id="addNewCriterion">Добавить критерий</a>
                                     </li>
-                                    <li><a class="dropdown-item" href="#" id="selectExistingCriteria">Выбрать
-                                        существующий</a></li>
+                                    <!--<li><a class="dropdown-item" href="#" id="selectExistingCriteria">Выбрать
+                                        существующий</a></li>-->
                                 </ul>
                             </div>
                             <div id="criteriaList"></div>
@@ -222,7 +223,7 @@
 </div>
 
 <!-- Модалка: выбрать существующие критерии -->
-<div class="modal fade" id="selectCriterionModal" tabindex="-1" aria-labelledby="selectCriterionModalLabel"
+<!--<div class="modal fade" id="selectCriterionModal" tabindex="-1" aria-labelledby="selectCriterionModalLabel"
      aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -238,7 +239,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->
 
 
 <!-- Bootstrap icons и JS -->
