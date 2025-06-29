@@ -251,6 +251,7 @@ async function deletePost(id) {
 
     console.log("Успешно отправлено!");
 
+    chosenCriteria = []
     postModal.hide()
 }
 
@@ -310,8 +311,11 @@ async function savePost() {
 
         const responseData = await response.json();
         const newPost = renderPost(postTitle.value, postDescription.value, dateString, userEmail, 0, responseData.id);
-        //TODO внести изменения в карточку поста
+        const elementToRemove = postsContainer.querySelector(`#${CSS.escape(id)}`);
+        postsContainer.replaceChild(newPost, elementToRemove);
 
+        chosenCriteria = []
+        clearModal()
         postModal.hide();
 
     } catch (err) {
@@ -379,6 +383,7 @@ async function publishPost() {
         const newPost = renderPost(postTitle.value, postDescription.value, dateString, userEmail, 0, responseData.id);
 
         postsContainer.prepend(newPost);
+        chosenCriteria = []
         postModal.hide();
 
     } catch (err) {
@@ -589,6 +594,7 @@ function renderPost(title, description, dateString, author, initialCommentCount 
             solutionModal.show()
             await taskModal.initModalHandlers("solutionModal")
         } else {
+            //const taskTeacherModal = newTaskSolution(id)
             postModal.show();
         }
     })
@@ -607,7 +613,7 @@ function fillModal(post) {
     deadlineInput.value = post.deadline !== undefined ? formatDate(post.deadline) : ""
     pointsInput.value = post.score !== undefined ? post.score : 0
     chosenCriteria = post.criteriaAssignments
-    chosenCriteria.forEach((criteria) => {createCriterionCard(criteria)})
+    chosenCriteria.forEach(createCriterionCard);
 }
 
 function getEndingOfTheWord(initialCommentCount) {
@@ -656,6 +662,10 @@ function createCriterionCard(criterion) {
         card.remove()
         const currentValue = parseInt(pointsInput.value, 10) || 0;
         pointsInput.value = currentValue - criterion.countScore;
+        const index = chosenCriteria.findIndex(c => c.name === criterion.name);
+        if (index !== -1) {
+            chosenCriteria.splice(index, 1);
+        }
     });
     criteriaListEl.appendChild(card);
 }
