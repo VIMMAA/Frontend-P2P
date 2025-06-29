@@ -1,10 +1,12 @@
 import {validateRightForm} from './validateRightForm.js';
 import {ApiClient} from './requests/ApiClient.js';
 import {formatDate, getPostType} from "./auxFunctions.js";
+import {TaskSolution} from "./solution.js";
 
 document.addEventListener("DOMContentLoaded", initializePage);
 
 const postModal = new bootstrap.Modal(document.getElementById("postModal"));
+const solutionModal = new bootstrap.Modal(document.getElementById("solutionModal"));
 
 
 const postModalLabel = document.getElementById("postModalLabel");
@@ -35,6 +37,7 @@ let postType
 let editMode = false;
 let prevEditMode = true;
 let currentPostId
+let userRole
 
 const saveBtn = document.getElementById('saveCriterionBtn');
 const criteriaListEl = document.getElementById('criteriaList');
@@ -42,7 +45,8 @@ const criteriaListEl = document.getElementById('criteriaList');
 const api = new ApiClient();
 
 let editingPost;
-
+let courseId = getCourseIdFromURL()
+localStorage.setItem("courseId", courseId);
 
 const userEmail = localStorage.getItem('userEmail');
 const token = localStorage.getItem('jwtToken');
@@ -225,8 +229,8 @@ function setListenerToPublishPostButton() {
 
 async function getMaterialName(id) {
     const postType = await getPostType(api, id);
-    if (postType) return "MaterialWork"
-    else return "MaterialRead"
+    if (postType) return "materialWork"
+    else return "materialRead"
 }
 
 async function deletePost(id) {
@@ -252,6 +256,7 @@ async function deletePost(id) {
 
 async function savePost() {
     const id = currentPostId
+    const courseId = getCourseIdFromURL();
 
     const now = new Date();
     const dateString = now.toLocaleDateString("ru-RU");
@@ -265,7 +270,7 @@ async function savePost() {
     let requestBody
     if (postType) {
         requestBody = {
-            materialTaskWork: {
+            materialWorkEdit: {
                 name: postTitle.value,
                 deadline: localDate.toISOString(),
                 description: postDescription.value,
@@ -289,7 +294,7 @@ async function savePost() {
     try {
         let materialName = await getMaterialName(id);
 
-        const response = await api.fetchWithAuth(`/Task/${id}/${materialName}`, {
+        const response = await api.fetchWithAuth(`/Task/${courseId}/${materialName}/${id}`, {
             method: 'PUT',
             body: JSON.stringify(requestBody)
         });
@@ -383,9 +388,16 @@ async function publishPost() {
 
 }
 
-function initializePage() {
+async function initializePage() {
 
-    const courseId = getCourseIdFromURL();
+    //const courseId = getCourseIdFromURL();
+
+    const response = await api.fetchWithAuth(`/Course/${courseId}/Role`)
+    if(!response.ok) {
+        throw new Error(`Ошибка сервера: ${response.status}`);
+    }
+    else userRole = await response.json();
+
     loadCourseData(courseId);
 
     postTitle.addEventListener("input", validateForm);
@@ -529,19 +541,13 @@ function renderPost(title, description, dateString, author, initialCommentCount 
         </div>
         <p class="text-muted">Автор: ${author} | Дата: ${dateString}</p>
         </div>
-        <hr>
-        <p class="comment-count text-secondary">${initialCommentCount} комментари${ending} под постом</p>
-        <div class="input-group mt-2">
-          <input type="text" class="form-control comment-input" placeholder="Введите комментарий...">
-          <button class="btn btn-outline-secondary send-comment" type="button">
-            <i class="bi bi-send"></i>
-          </button>
-        </div>
-        <div class="comment-section mt-2"></div>
       </div>
     `;
 
     const editBtn = newPost.children[0].children[0].children[0].children[1]
+    if (userRole === "Student"){
+        editBtn.style.display = 'none';
+    }
     editBtn.addEventListener("click", async function () {
 
         if (await getPostType(api, id)) {
@@ -577,8 +583,14 @@ function renderPost(title, description, dateString, author, initialCommentCount 
     })
 
     const cardArea = newPost.children[0].children[0]
-    cardArea.addEventListener("click", function (e) {
-        postModal.show();
+    cardArea.addEventListener("click", async function (e) {
+        if (userRole === "Student") {
+            const taskModal = new TaskSolution(id)
+            solutionModal.show()
+            await taskModal.initModalHandlers("solutionModal")
+        } else {
+            postModal.show();
+        }
     })
 
     return newPost;

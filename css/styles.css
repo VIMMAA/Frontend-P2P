@@ -113,6 +113,13 @@ textarea {
   padding-left: 0 !important;
 }
 
-#deletePostBtn {
+#deletePostBtn, #solutionModalLabel {
   margin-left: 2em ;
+}
+
+.scrollable-box {
+  max-height: 300px;      /* или просто height: 300px; */
+  overflow-y: auto;       /* вертикальная прокрутка, если нужно */
+  padding: 10px;
+  border: 1px solid #ccc;
 }

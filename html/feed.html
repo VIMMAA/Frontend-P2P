@@ -242,6 +242,122 @@
 </div>-->
 
 
+
+
+<!-- Модальное окно решения -->
+<div class="modal fade" id="solutionModal" tabindex="-1" aria-labelledby="solutionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title w-100" id="solutionModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <!-- Левая часть -->
+                    <div class="col-md-8">
+                        <div class="p-3 border rounded">
+                            <p></p>
+                            <div>
+                                <strong>Прикрепленные файлы:</strong>
+                                <ul id="attachedFiles" class="list-unstyled">
+                                    <!-- файлы вставляются сюда -->
+                                </ul>
+                                <button class="btn btn-sm btn-outline-primary mt-2" onclick="downloadAll()">Скачать
+                                    все
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Блок решения -->
+                        <div class="p-3 border rounded mt-4" id="solutionBlock">
+                            <h5>Ваше решение</h5>
+                            <div id="submittedSolution" style="display: none;">
+                                <p id="submittedText"></p>
+                                <div>
+                                    <strong>Прикрепленные файлы:</strong>
+                                    <ul id="solutionFiles" class="list-unstyled"></ul>
+                                </div>
+                                <button class="btn btn-outline-danger mt-3" id="deleteSolutionBtn">Удалить решение</button>
+                            </div>
+
+                            <!-- Если решения нет — форма для отправки -->
+                            <form id="solutionForm" style="display: none;">
+                                <div class="mb-3">
+            <textarea class="form-control" id="solutionContent" rows="6"
+                      maxlength="2000" placeholder="Введите решение..."></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Прикрепленные файлы</label>
+                                    <button type="button" class="btn btn-outline-primary" id="attachSolutionFilesBtn">Прикрепить</button>
+                                    <input type="file" id="solutionFilesInput" multiple accept="*/*" style="display: none;">
+                                    <div id="solutionAttachedFilesList" class="mt-2"></div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+
+                    <!-- Правая часть -->
+                    <div class="col-md-4 border rounded scrollable-box">
+                        <div id="gradesList">
+                            <!-- оценки вставляются сюда -->
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <strong>Итог: <span id="averageGrade">-</span></strong>
+                            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#complaintModal">Жалоба
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3 border rounded">
+                    <h6>Комментарии</h6>
+                    <ul class="list-group mb-3" id="commentsList">
+                        <!-- комментарии вставляются сюда -->
+                    </ul>
+                    <div class="input-group">
+                        <input type="text" id="newComment" class="form-control" placeholder="Введите комментарий..."/>
+                        <button class="btn btn-outline-secondary send-comment-2" type="button">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top d-flex justify-content-between">
+                <button type="button" class="btn btn-primary ms-auto" id="saveSolutionBtn">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно жалобы -->
+<div class="modal fade" id="complaintModal" tabindex="-1" aria-labelledby="complaintModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="complaintModalLabel">Подать жалобу</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Тема:</strong> <span id="complaintTaskTitle">Тема задания</span></p>
+                <p><strong>Дата публикации:</strong> <span id="complaintTaskDate">24.06.2025</span></p>
+                <p><strong>Итоговая оценка:</strong> <span id="complaintTaskGrade">-</span></p>
+
+                <div class="form-group mt-3">
+                    <label for="complaintText">Текст жалобы</label>
+                    <textarea class="form-control" id="complaintText" rows="4"
+                              placeholder="Опишите причину жалобы..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="submitComplaint" class="btn btn-danger" disabled>Отправить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Bootstrap icons и JS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -250,5 +366,6 @@
 <script type="module" src="/js/auxFunctions.js"></script>
 <script type="module" src="/js/requests/ApiClient.js"></script>
 <script type="module" src="/js/consts.js"></script>
+<script type="module" src="/js/solution.js"></script>
 </body>
 </html>

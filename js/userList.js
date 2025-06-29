@@ -57,7 +57,7 @@ function handleLogout() {
 
 async function loadUsers() {
     const token = localStorage.getItem('jwtToken');
-    const courseId = new URLSearchParams(window.location.search).get('id');
+    const courseId = localStorage.getItem("courseId");
 
     api.fetchWithAuth(`/Course/${courseId}/users`, {
         method: 'GET',
