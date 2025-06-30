@@ -106,7 +106,7 @@ async function fetchAuthorName(authorId) {
         const response = await api.fetchWithAuth(`/User/profile/${authorId}`);
         if (!response.ok) throw new Error("Ошибка получения профиля");
 
-        const data = response.json();
+        const data = await response.json();
         return `${data.lastName} ${data.firstName}`;
     } catch (err) {
         console.error("Ошибка при получении имени автора:", err);
@@ -127,15 +127,15 @@ async function loadCourseData() {
         const course = await response.json();
         const tasks = course.tasks || [];
 
-        tasks.forEach(task => {
+        for (const task of tasks) {
             const taskTitle = task.name;
             const taskDescription = task.description;
             const author = task.authorId;
             const date = task.createTime;
 
-            const newPost = renderPost(taskTitle, taskDescription, date, author, 0, task.id);
+            const newPost = await renderPost(taskTitle, taskDescription, date, author, 0, task.id);
             postsContainer.prepend(newPost);
-        });
+        }
     } catch (error) {
         console.error("Ошибка при загрузке курса:", error);
     }
@@ -324,7 +324,7 @@ async function savePost() {
         console.log("Успешно отправлено!");
 
         const responseData = await response.json();
-        const newPost = renderPost(postTitle.value, postDescription.value, dateString, userEmail, 0, responseData.id);
+        const newPost = await renderPost(postTitle.value, postDescription.value, dateString, userEmail, 0, responseData.id);
         const elementToRemove = postsContainer.querySelector(`#${CSS.escape(id)}`);
         postsContainer.replaceChild(newPost, elementToRemove);
 
@@ -393,7 +393,7 @@ async function publishPost() {
         console.log("Успешно отправлено!");
 
         const responseData = await response.json();
-        const newPost = renderPost(postTitle.value, postDescription.value, dateString, userEmail, 0, responseData.id);
+        const newPost = await renderPost(postTitle.value, postDescription.value, dateString, userEmail, 0, responseData.id);
 
         postsContainer.prepend(newPost);
         chosenCriteria = []
@@ -549,10 +549,10 @@ function showRightPartModal() {
 
 deletePostBtn.addEventListener("click", () => deletePost(currentPostId))
 
-function renderPost(title, description, dateString, authorId, initialCommentCount = 0, id) {
+async function renderPost(title, description, dateString, authorId, initialCommentCount = 0, id) {
     const newPost = document.createElement("div");
     newPost.setAttribute('id', `${id}`);
-    let author = fetchAuthorName(authorId)
+    let author = await fetchAuthorName(authorId)
 
     const ending = getEndingOfTheWord(initialCommentCount);
     newPost.className = "card mb-3";
