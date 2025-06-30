@@ -206,7 +206,7 @@ function renderCourses(courses) {
         chapterEl.classList.add('d-none');
         }
 
-        //clone.querySelector('.courseAuthor').textContent = course.author || '—'; потом добавлю имя создателя курса
+        clone.querySelector('.courseAuthor').textContent = course.owner || '—';
 
         const courseBox = clone.querySelector('.courseBox');
         courseBox.style.cursor = 'pointer';
