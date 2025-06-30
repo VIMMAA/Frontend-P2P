@@ -151,5 +151,4 @@ function renderAppeals(appeals) {
   });
 }
 
-
 loadAppeals();

@@ -263,7 +263,7 @@
                                 <ul id="attachedFiles" class="list-unstyled">
                                     <!-- файлы вставляются сюда -->
                                 </ul>
-                                <button class="btn btn-sm btn-outline-primary mt-2" id="downloadAll">Скачать
+                                <button class="btn btn-sm btn-outline-primary mt-2" id="downloadAllBtn">Скачать
                                     все
                                 </button>
                             </div>
@@ -351,6 +351,46 @@
             </div>
             <div class="modal-footer">
                 <button id="submitComplaint" class="btn btn-danger" disabled>Отправить</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Модальное окно проверки по критериям конкретного студента -->
+<div class="modal fade" id="checksolution" tabindex="-1" aria-labelledby="complaintModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="solutionCheckLabel">Посмотреть оценку</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group mt-3">
+                    <label for="complaintText">Текст жалобы</label>
+                    <textarea class="form-control" id="solutionCheckText" rows="4"
+                              placeholder="Опишите причину жалобы..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно оценки по критериям конкретного студента -->
+<div class="modal fade" id="gradesCheck" tabindex="-1" aria-labelledby="gradesCheckLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gradesCheckLabel">Посмотреть оценку</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body" id="gradesCheckGrades">
+
+                <p><strong>Итоговая оценка:</strong> <span id="gradesCheckGrade"></span></p>
+
+                <div class="form-group mt-3">
+                    <label for="complaintText">Текст жалобы</label>
+                    <textarea class="form-control" id="gradesCheckText" rows="4" disabled></textarea>
+                </div>
             </div>
         </div>
     </div>

@@ -5,6 +5,14 @@ let solutionAttachedFiles = [];
 const solutionInput = document.getElementById("solutionFilesInput");
 const solutionAttachBtn = document.getElementById("attachSolutionFilesBtn");
 const solutionFileList = document.getElementById("solutionAttachedFilesList");
+const gradesCheckGrades = document.getElementById("gradesCheckGrades");
+
+
+function renderGradesCheck() {
+
+}
+
+const complaintModal = new bootstrap.Modal(document.getElementById("complaintModal"));
 
 solutionAttachBtn.addEventListener("click", () => solutionInput.click());
 
@@ -59,12 +67,54 @@ export class TaskSolution {
         this.currentUserFullName = "";
         this.attachedFiles = [];
         this.comments = [];
-        this.grades = []; // Пока можно оставить пустым
+        this.grades = [];
+        this.finalGrade = 0;
+        this.solutionForCheckModels = []
         this.taskTitle = "";
         this.taskDescription = "";
         this.taskDate = "";
     }
 
+
+    async fetchGrades() {
+        try {
+            const response = await this.api.fetchWithAuth(`/CheckAssignments/solution/${this.solutionId}`);
+
+            if (!response.ok) throw new Error("Ошибка при отправке комментария");
+
+            let responseData = await response.json();
+            this.solutionForCheckModels = responseData.solutionForCheckModels;
+            this.finalGrade = responseData.finalGrade;
+            this.solutionForCheckModels.forEach(el => {
+                this.grades.push(el);
+            });
+            //this.grades = responseData.assesments;
+
+        } catch (err) {
+            console.error("ошибка", err);
+        }
+    }
+
+
+    //"solutionForCheckModels": [
+    //     {
+    //         "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    //         "assements": [
+    //             {
+    //                 "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    //                 "score": 0,
+    //                 "maxScore": 0,
+    //                 "remark": "string"
+    //             }
+    //         ],
+    //         "solutionId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    //         "comment": "string",
+    //         "authortId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    //         "dueTime": "2025-06-30T02:53:05.172Z",
+    //         "isChecked": true
+    //     }
+    // ],
+    //"
 
     async sendComment(text) {
         const trimmed = text.trim();
@@ -73,13 +123,13 @@ export class TaskSolution {
         try {
             const response = await this.api.fetchWithAuth(`/Comment/${this.taskId}/task`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: trimmed })
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({text: trimmed})
             });
 
             if (!response.ok) throw new Error("Ошибка при отправке комментария");
 
-            this.comments.push({ author: this.currentUserFullName, text: trimmed });
+            this.comments.push({author: this.currentUserFullName, text: trimmed});
             this.renderComments();
         } catch (err) {
             console.error("Не удалось отправить комментарий:", err);
@@ -94,7 +144,7 @@ export class TaskSolution {
         try {
             const response = await this.api.fetchWithAuth(`/Solution/${this.taskId}`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({
                     content,
                     attachmentPath: "",
@@ -111,7 +161,6 @@ export class TaskSolution {
             console.error("Не удалось отправить решение:", err);
         }
     }
-
 
 
     async fetchAuthorName(authorId) {
@@ -200,7 +249,7 @@ export class TaskSolution {
     addComment(text) {
         const trimmed = text.trim();
         if (trimmed !== "") {
-            this.comments.push({ author: this.currentUserFullName, text: trimmed });
+            this.comments.push({author: this.currentUserFullName, text: trimmed});
             this.renderComments();
         }
     }
@@ -213,11 +262,11 @@ export class TaskSolution {
         this.grades.forEach(grade => {
             total += grade.score;
             const card = document.createElement("div");
+            const author = this.fetchAuthorName(grade.authorId);
             card.className = "card mb-2";
             card.innerHTML = `
             <div class="card-body">
-              <h6 class="card-title">${grade.reviewer}</h6>
-              <p class="card-text">Оценка: <strong>${grade.score}</strong></p>
+              <h6 class="card-title">${author}</h6>
             </div>`;
             container.appendChild(card);
         });
@@ -310,6 +359,7 @@ export class TaskSolution {
         document.getElementById(modalId).addEventListener('shown.bs.modal', async () => {
             await this.loadDataFromServer();
             await this.renderTaskInfo();
+            await this.fetchGrades()
             this.renderFiles();
             this.renderComments();
             this.renderGrades();
@@ -336,8 +386,10 @@ export class TaskSolution {
         }
 
         const downloadAllBtn = document.getElementById("downloadAllBtn");
-        if(downloadAllBtn) {
+        if (downloadAllBtn) {
             downloadAllBtn.addEventListener("click", async () => {
+                console.log("djidfjkdjkdfjk")
+
                 await this.downloadAll();
             })
         }
@@ -345,17 +397,28 @@ export class TaskSolution {
         const appealBtn = document.getElementById("appealBtn");
         if (appealBtn) {
             appealBtn.addEventListener("click", async () => {
-                await this.postAppeal();
+                complaintModal.show()
+                //await this.postAppeal();
             })
         }
     }
 
-    async postAppeal (){
-        try {
+    async postAppeal() {
 
-        } catch (e) {
-
-        }
+        // let requestBody = {
+        //     description: complaintModal.description,
+        //     studentId: userId,
+        //     solutionId: complaintModal.id
+        // }
+        //
+        // try {
+        //     const response = await this.api.fetchWithAuth('/Report', {
+        //         method: 'POST',
+        //         body: JSON.stringify(requestBody)
+        //     })
+        // } catch (e) {
+        //
+        // }
     }
 
     async downloadAll() {
@@ -397,7 +460,6 @@ export class TaskSolution {
         }
     }
 }
-
 
 
 function getCourseIdFromURL() {

@@ -376,7 +376,6 @@ async function publishPost() {
             alert("Ошибка при отправке: " + errorData.message || response.statusText);
             return;
         }
-
         console.log("Успешно отправлено!");
 
         const responseData = await response.json();
@@ -534,9 +533,10 @@ function showRightPartModal() {
 
 deletePostBtn.addEventListener("click", () => deletePost(currentPostId))
 
-function renderPost(title, description, dateString, author, initialCommentCount = 0, id) {
+function renderPost(title, description, dateString, authorId, initialCommentCount = 0, id) {
     const newPost = document.createElement("div");
     newPost.setAttribute('id', `${id}`);
+    let author =
 
     const ending = getEndingOfTheWord(initialCommentCount);
     newPost.className = "card mb-3";
@@ -547,7 +547,7 @@ function renderPost(title, description, dateString, author, initialCommentCount 
           <h5 class="card-title">${title}</h5>
           <button class="bi bi-pencil-square edit-post btn"></button>
         </div>
-        <p class="text-muted">Автор: ${author} | Дата: ${dateString}</p>
+        <p class="text-muted">Автор: ${authorId} | Дата: ${dateString}</p>
         </div>
       </div>
     `;
@@ -597,9 +597,9 @@ function renderPost(title, description, dateString, author, initialCommentCount 
             solutionModal.show()
             await taskModal.initModalHandlers("solutionModal")
         } else {
-            const taskModal = new TaskSolution(id)
-            solutionModal.show()
-            await taskModal.initModalHandlers("solutionModal")
+            // const taskModal = new TaskSolution(id)
+            // solutionModal.show()
+            // await taskModal.initModalHandlers("solutionModal")
             postModal.show();
         }
     })
