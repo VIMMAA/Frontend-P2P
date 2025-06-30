@@ -101,6 +101,20 @@ function handleLogout() {
     window.location.href = 'authorization.html';
 }
 
+async function fetchAuthorName(authorId) {
+    try {
+        const response = await api.fetchWithAuth(`/User/profile/${authorId}`);
+        if (!response.ok) throw new Error("Ошибка получения профиля");
+
+        const data = response.json();
+        return `${data.lastName} ${data.firstName}`;
+    } catch (err) {
+        console.error("Ошибка при получении имени автора:", err);
+        return "Неизвестный пользователь";
+    }
+}
+
+
 async function loadCourseData() {
     const courseId = getCourseIdFromURL();
 
@@ -400,6 +414,8 @@ async function initializePage() {
     }
     else userRole = await response.json();
 
+    localStorage.setItem('userRole', JSON.stringify(userRole));
+
     if(userRole === "Student") {
         document.getElementById("appeals").style.display = "none";
         document.getElementById("createPostBtn").style.display = "none";
@@ -536,7 +552,7 @@ deletePostBtn.addEventListener("click", () => deletePost(currentPostId))
 function renderPost(title, description, dateString, authorId, initialCommentCount = 0, id) {
     const newPost = document.createElement("div");
     newPost.setAttribute('id', `${id}`);
-    let author =
+    let author = fetchAuthorName(authorId)
 
     const ending = getEndingOfTheWord(initialCommentCount);
     newPost.className = "card mb-3";
@@ -547,13 +563,13 @@ function renderPost(title, description, dateString, authorId, initialCommentCoun
           <h5 class="card-title">${title}</h5>
           <button class="bi bi-pencil-square edit-post btn"></button>
         </div>
-        <p class="text-muted">Автор: ${authorId} | Дата: ${dateString}</p>
+        <p class="text-muted">Автор: ${author} | Дата: ${dateString}</p>
         </div>
       </div>
     `;
 
     const editBtn = newPost.children[0].children[0].children[0].children[1]
-    if (userRole === "Student"){
+    if (userRole === "Student") {
         editBtn.style.display = 'none';
     }
     editBtn.addEventListener("click", async function () {
